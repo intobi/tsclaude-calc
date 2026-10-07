@@ -1,0 +1,21 @@
+<main class="calc">
+  <div class="screen">
+    <div class="expr">{{ expression() }}</div>
+    <div class="value">{{ display() }}</div>
+    @if (error()) {
+      <div class="error">{{ error() }}</div>
+    }
+  </div>
+  <div class="keys">
+    <button class="fn" (click)="clear()">C</button>
+    @for (d of digits; track d) {
+      <button (click)="press(d)">{{ d }}</button>
+    }
+    <button (click)="press('0')">0</button>
+    <button (click)="press('.')">.</button>
+    <button class="eq" (click)="equals()">=</button>
+    @for (o of ops; track o.op) {
+      <button class="op" [style.grid-row]="$index + 1" (click)="setOp(o.op)">{{ o.symbol }}</button>
+    }
+  </div>
+</main>
