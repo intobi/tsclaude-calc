@@ -1,21 +1,21 @@
 <main class="calc">
-  <div class="screen">
+  <div class="screen" role="status" aria-live="polite">
     <div class="expr">{{ expression() }}</div>
-    <div class="value">{{ display() }}</div>
+    <output class="value">{{ display() }}</output>
     @if (error()) {
-      <div class="error">{{ error() }}</div>
+      <div class="error" role="alert">{{ error() }}</div>
     }
   </div>
   <div class="keys">
-    <button class="fn" (click)="clear()">C</button>
-    @for (d of digits; track d) {
-      <button (click)="press(d)">{{ d }}</button>
-    }
-    <button (click)="press('0')">0</button>
-    <button (click)="press('.')">.</button>
-    <button class="eq" (click)="equals()">=</button>
-    @for (o of ops; track o.op) {
-      <button class="op" [style.grid-row]="$index + 1" (click)="setOp(o.op)">{{ o.symbol }}</button>
+    @for (key of keys; track key.label) {
+      <button
+        type="button"
+        class="key key--{{ key.kind }}"
+        [attr.aria-label]="key.ariaLabel ?? null"
+        (click)="onKey(key)"
+      >
+        {{ key.label }}
+      </button>
     }
   </div>
 </main>

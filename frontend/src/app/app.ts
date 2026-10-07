@@ -5,6 +5,42 @@ type Operation = 'add' | 'subtract' | 'multiply' | 'divide';
 
 const SYMBOLS: Record<Operation, string> = { add: '+', subtract: '−', multiply: '×', divide: '÷' };
 
+interface Key {
+  label: string;
+  kind: 'digit' | 'op' | 'eq' | 'clear';
+  ariaLabel?: string;
+  op?: Operation;
+}
+
+const digit = (label: string): Key => ({ label, kind: 'digit' });
+const op = (o: Operation, ariaLabel: string): Key => ({
+  label: SYMBOLS[o],
+  kind: 'op',
+  op: o,
+  ariaLabel,
+});
+
+// Row-major order of the 4-column keypad.
+const KEYS: Key[] = [
+  { label: 'C', kind: 'clear', ariaLabel: 'Clear' },
+  op('divide', 'Divide'),
+  digit('7'),
+  digit('8'),
+  digit('9'),
+  op('multiply', 'Multiply'),
+  digit('4'),
+  digit('5'),
+  digit('6'),
+  op('subtract', 'Subtract'),
+  digit('1'),
+  digit('2'),
+  digit('3'),
+  op('add', 'Add'),
+  digit('0'),
+  digit('.'),
+  { label: '=', kind: 'eq', ariaLabel: 'Equals' },
+];
+
 @Component({
   selector: 'app-root',
   styleUrl: './app.css',
@@ -16,16 +52,26 @@ export class App {
   protected readonly display = signal('0');
   protected readonly expression = signal('');
   protected readonly error = signal('');
-  protected readonly digits = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
-  protected readonly ops: { op: Operation; symbol: string }[] = (
-    Object.keys(SYMBOLS) as Operation[]
-  ).map((op) => ({ op, symbol: SYMBOLS[op] }));
+  protected readonly keys = KEYS;
 
   private first: number | null = null;
   private pending: Operation | null = null;
   private fresh = true;
 
-  protected press(d: string) {
+  protected onKey(key: Key) {
+    switch (key.kind) {
+      case 'digit':
+        return this.press(key.label);
+      case 'op':
+        return this.setOp(key.op!);
+      case 'eq':
+        return this.equals();
+      case 'clear':
+        return this.clear();
+    }
+  }
+
+  private press(d: string) {
     this.error.set('');
     if (this.fresh) {
       this.display.set(d === '.' ? '0.' : d);
@@ -35,7 +81,7 @@ export class App {
     }
   }
 
-  protected setOp(op: Operation) {
+  private setOp(op: Operation) {
     if (this.pending && !this.fresh) {
       this.equals(op);
       return;
@@ -46,7 +92,7 @@ export class App {
     this.expression.set(`${this.display()} ${SYMBOLS[op]}`);
   }
 
-  protected equals(next?: Operation) {
+  private equals(next?: Operation) {
     if (this.pending === null || this.first === null) return;
     const op = this.pending;
     const a = this.first;
@@ -71,7 +117,7 @@ export class App {
     });
   }
 
-  protected clear() {
+  private clear() {
     this.display.set('0');
     this.expression.set('');
     this.first = null;
