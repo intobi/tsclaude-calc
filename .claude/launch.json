@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "/Users/andrewtsopych/.dotnet/dotnet",
+      "runtimeArgs": ["run", "--project", "backend/Calculator.Api"],
+      "port": 5278
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=\"$HOME/.local/node/bin:$PATH\" && npm start --prefix frontend"],
+      "port": 4200
+    }
+  ]
+}
