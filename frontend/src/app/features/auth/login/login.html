@@ -1,0 +1,29 @@
+<h1 class="title">Вхід</h1>
+<form class="login-card" (ngSubmit)="submit()">
+  <label class="field">
+    Email
+    <input
+      type="email"
+      name="email"
+      autocomplete="username"
+      [(ngModel)]="emailInput"
+      required
+    />
+  </label>
+  <label class="field">
+    Пароль
+    <input
+      type="password"
+      name="password"
+      autocomplete="current-password"
+      [(ngModel)]="passwordInput"
+      required
+    />
+  </label>
+  @if (error()) {
+    <div class="error" role="alert">{{ error() }}</div>
+  }
+  <button type="submit" class="submit" [disabled]="loading()">
+    {{ loading() ? 'Вхід...' : 'Увійти' }}
+  </button>
+</form>

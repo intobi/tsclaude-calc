@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lsof -ti:4200,5278 2>/dev/null | xargs -r kill 2>/dev/null; true",
+            "statusMessage": "Stopping project dev servers (ports 4200, 5278)"
+          }
+        ]
+      }
+    ]
+  }
+}

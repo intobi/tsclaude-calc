@@ -1,0 +1,26 @@
+<h1 class="title">Супер Калькулятор</h1>
+<div class="user-bar">
+  <span class="user-email">{{ email() }}</span>
+  <button type="button" class="logout" (click)="logout()">Вийти</button>
+</div>
+<main class="calc">
+  <div class="screen" role="status" aria-live="polite">
+    <div class="expr">{{ expression() }}</div>
+    <output class="value">{{ display() }}</output>
+    @if (error()) {
+      <div class="error" role="alert">{{ error() }}</div>
+    }
+  </div>
+  <div class="keys">
+    @for (key of keys; track key.label) {
+      <button
+        type="button"
+        class="key key--{{ key.kind }}"
+        [attr.aria-label]="key.ariaLabel ?? null"
+        (click)="onKey(key)"
+      >
+        {{ key.label }}
+      </button>
+    }
+  </div>
+</main>
