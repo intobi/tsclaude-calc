@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
   const token = authService.getToken();
 
   const authedReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
@@ -14,7 +15,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error) => {
       if (error?.status === 401) {
         authService.logout();
-        inject(Router).navigate(['/login']);
+        router.navigate(['/login']);
       }
       return throwError(() => error);
     }),
