@@ -3,13 +3,17 @@ import {
   DestroyRef,
   ElementRef,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, map } from 'rxjs';
+import { APP_PATHS } from '../../core/navigation';
 import { History } from '../history/history';
 
 type Operation = 'add' | 'subtract' | 'multiply' | 'divide';
@@ -109,26 +113,27 @@ const isEditable = (target: EventTarget | null): boolean =>
 })
 export class Calculator {
   private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+      takeUntilDestroyed(),
+    ),
+    { initialValue: this.router.url },
+  );
 
   protected readonly display = signal('0');
   protected readonly expression = signal('');
   protected readonly error = signal('');
   protected readonly keys = KEYS;
-  protected readonly email = this.authService.email;
-  protected readonly historyOpen = signal(false);
+  /** The history side is shown on the /history URL (selected from the header menu). */
+  protected readonly historyOpen = computed(
+    () => this.url().split(/[?#]/)[0] === APP_PATHS.history,
+  );
   protected readonly historyVersion = signal(0);
   protected readonly pressedKey = signal<Key | null>(null);
   private readonly keypad = viewChild<ElementRef<HTMLElement>>('keypad');
-  protected readonly barActions = computed(() => [
-    {
-      label: this.historyOpen() ? 'Калькулятор' : 'History',
-      controls: 'calc-flip',
-      run: () => this.toggleHistory(),
-    },
-    { label: 'Вийти', controls: undefined, run: () => this.logout() },
-  ]);
 
   private first: number | null = null;
   private pending: Operation | null = null;
@@ -137,6 +142,13 @@ export class Calculator {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => clearTimeout(this.pressTimer));
+
+    // Reload so the history side shows calculations made since it was last opened.
+    effect(() => {
+      if (this.historyOpen()) {
+        untracked(() => this.historyVersion.update((v) => v + 1));
+      }
+    });
   }
 
   protected onKey(key: Key) {
@@ -177,19 +189,6 @@ export class Calculator {
     event.preventDefault();
     this.flash(key);
     this.onKey(key);
-  }
-
-  protected toggleHistory() {
-    this.historyOpen.update((open) => !open);
-    if (this.historyOpen()) {
-      // Reload so the back side shows calculations made since the last flip.
-      this.historyVersion.update((v) => v + 1);
-    }
-  }
-
-  protected logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   private press(d: string) {

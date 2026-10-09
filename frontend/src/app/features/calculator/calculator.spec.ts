@@ -1,13 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { Calculator } from './calculator';
 
 describe('Calculator', () => {
-  let fixture: ComponentFixture<Calculator>;
+  let harness: RouterTestingHarness;
   let root: HTMLElement;
   let http: HttpTestingController;
+  // Minimal stand-in for `fixture` so the helpers below read naturally.
+  const fixture = { detectChanges: () => harness.detectChanges() };
 
   const click = (label: string) => {
     const button = Array.from(root.querySelectorAll('button')).find(
@@ -26,12 +29,24 @@ describe('Calculator', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Calculator],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([
+          {
+            path: '',
+            component: Calculator,
+            children: [
+              { path: '', children: [] },
+              { path: 'history', children: [] },
+            ],
+          },
+        ]),
+      ],
     }).compileComponents();
-    fixture = TestBed.createComponent(Calculator);
-    fixture.detectChanges();
-    root = fixture.nativeElement;
+    harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/', Calculator);
+    root = harness.routeNativeElement!;
     http = TestBed.inject(HttpTestingController);
   });
 
@@ -57,18 +72,21 @@ describe('Calculator', () => {
     expect(display()).toBe('42');
   });
 
-  it('flips to the history and back with the toggle button', () => {
+  it('flips to the history on /history and back on /', async () => {
     const calc = () => root.querySelector('section[aria-label="Калькулятор"]')!;
     const history = () => root.querySelector('app-history')!;
     expect(calc().hasAttribute('inert')).toBe(false);
     expect(history().hasAttribute('inert')).toBe(true);
+    const instance = harness.routeDebugElement!.componentInstance;
 
-    click('History');
+    await harness.navigateByUrl('/history');
+    // The same component instance stays on screen, which is what lets the card animate.
+    expect(harness.routeDebugElement!.componentInstance).toBe(instance);
     expect(calc().hasAttribute('inert')).toBe(true);
     expect(history().hasAttribute('inert')).toBe(false);
     http.match('/api/history').forEach((req) => req.flush([]));
 
-    click('Калькулятор');
+    await harness.navigateByUrl('/');
     expect(calc().hasAttribute('inert')).toBe(false);
     expect(history().hasAttribute('inert')).toBe(true);
   });
@@ -97,10 +115,10 @@ describe('Calculator', () => {
     expect(pressed?.textContent?.trim()).toBe('7');
   });
 
-  it('ignores the keyboard while the history side is shown', () => {
-    click('History');
+  it('ignores the keyboard while the history side is shown', async () => {
+    await harness.navigateByUrl('/history');
     type('9');
-    click('Калькулятор');
+    await harness.navigateByUrl('/');
     expect(display()).toBe('0');
   });
 
@@ -149,11 +167,11 @@ describe('Calculator', () => {
   });
 
   it('keeps Enter for buttons outside the keypad', () => {
-    const logout = Array.from(root.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim() === 'Вийти',
-    )!;
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
     const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
-    logout.dispatchEvent(event);
+    outside.dispatchEvent(event);
+    outside.remove();
     expect(event.defaultPrevented).toBe(false);
   });
 });

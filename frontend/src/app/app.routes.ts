@@ -10,6 +10,12 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/calculator/calculator').then((m) => m.Calculator),
+    // Both views live in one Calculator instance, so switching between them flips the card
+    // instead of re-creating the component.
+    children: [
+      { path: '', children: [] },
+      { path: 'history', children: [] },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];

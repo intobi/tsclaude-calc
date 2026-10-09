@@ -1,22 +1,7 @@
 <h1 class="m-0 text-center font-title text-[2rem] leading-tight font-normal text-title">
   Супер <span class="title-accent">Калькулятор</span>
 </h1>
-<div class="flex w-full max-w-92 items-center justify-between gap-4">
-  <span class="truncate text-sm text-muted">{{ email() }}</span>
-  <div class="flex shrink-0 gap-2">
-    @for (action of barActions(); track action.label) {
-      <button
-        type="button"
-        class="cursor-pointer rounded-control border border-outline bg-transparent px-4 py-2 text-sm leading-tight font-semibold text-outline focus-ring transition-colors hover:bg-outline-hover"
-        [attr.aria-controls]="action.controls ?? null"
-        (click)="action.run()"
-      >
-        {{ action.label }}
-      </button>
-    }
-  </div>
-</div>
-<div id="calc-flip" class="w-full max-w-92 perspective-[75rem]">
+<div class="w-full max-w-92 perspective-[75rem]">
   <div
     class="relative transition-transform duration-800 ease-flip transform-3d"
     [class.rotate-y-180]="historyOpen()"

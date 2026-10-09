@@ -1,63 +1,98 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Router, provideRouter } from '@angular/router';
 import { Header } from './header';
 
+const SESSION_KEY = 'calc_auth';
+
+function signIn(email = 'user@example.com') {
+  const expiresAtUtc = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ token: 'test-token', email, expiresAtUtc }));
+}
+
 describe('Header', () => {
-  let fixture: ComponentFixture<Header>;
   let root: HTMLElement;
+  let detectChanges: () => void;
 
   const button = (label: string) =>
     Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
       (b) => b.textContent?.trim() === label,
     )!;
-  const submenu = (id: string) => root.querySelector<HTMLElement>(`#${id}`)!;
 
-  beforeEach(async () => {
+  async function render() {
     await TestBed.configureTestingModule({
       imports: [Header],
-      providers: [provideRouter([])],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
-    fixture = TestBed.createComponent(Header);
+    const fixture = TestBed.createComponent(Header);
     fixture.detectChanges();
     root = fixture.nativeElement;
+    detectChanges = () => fixture.detectChanges();
+  }
+
+  afterEach(() => localStorage.removeItem(SESSION_KEY));
+
+  it('shows only the sign-in link when signed out', async () => {
+    await render();
+    expect(root.querySelector('nav')).toBeNull();
+    expect(root.querySelector('a[href="/login"]')!.textContent!.trim()).toBe('Увійти');
   });
 
-  it('renders the navigation items from the design', () => {
-    const labels = Array.from(root.querySelectorAll('nav > ul > li > :is(a, button)')).map((e) =>
-      e.textContent!.trim(),
-    );
-    expect(labels).toEqual([
-      'Company',
-      'Services',
-      'Industries',
-      'Portfolio',
-      'Tech Stack',
-      'Blog',
-      'Contact Us', // shown inside the menu on narrow screens
-    ]);
-  });
+  describe('when signed in', () => {
+    beforeEach(async () => {
+      signIn('user@example.com');
+      await render();
+    });
 
-  it('opens one dropdown at a time and closes it with Escape', () => {
-    button('Company').click();
-    fixture.detectChanges();
-    expect(submenu('submenu-company').hidden).toBe(false);
-    expect(button('Company').getAttribute('aria-expanded')).toBe('true');
+    it('links to the calculator and the history', () => {
+      const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('nav a')).map((a) => [
+        a.textContent!.trim(),
+        a.getAttribute('href'),
+      ]);
+      expect(links).toEqual([
+        ['Калькулятор', '/'],
+        ['Історія', '/history'],
+      ]);
+    });
 
-    button('Services').click();
-    fixture.detectChanges();
-    expect(submenu('submenu-company').hidden).toBe(true);
-    expect(submenu('submenu-services').hidden).toBe(false);
+    it('opens the keyboard shortcuts cheat sheet and closes it with Escape', () => {
+      const sheet = root.querySelector<HTMLElement>('#submenu-shortcuts')!;
+      expect(sheet.hidden).toBe(true);
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    fixture.detectChanges();
-    expect(submenu('submenu-services').hidden).toBe(true);
-  });
+      button('Гарячі клавіші').click();
+      detectChanges();
+      expect(sheet.hidden).toBe(false);
+      expect(sheet.textContent).toContain('Backspace');
+      expect(sheet.textContent).toContain('Стерти символ');
 
-  it('toggles the mobile menu with the burger button', () => {
-    const burger = root.querySelector<HTMLButtonElement>('button[aria-label="Меню"]')!;
-    burger.click();
-    fixture.detectChanges();
-    expect(root.querySelector('nav')!.getAttribute('data-open')).toBe('true');
-    expect(burger.getAttribute('aria-expanded')).toBe('true');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      detectChanges();
+      expect(sheet.hidden).toBe(true);
+    });
+
+    it('shows the account email and signs out from its menu', () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+      button('user@example.com').click();
+      detectChanges();
+      expect(root.querySelector<HTMLElement>('#submenu-account')!.hidden).toBe(false);
+
+      const logout = root.querySelector<HTMLButtonElement>('#submenu-account button')!;
+      logout.click();
+      detectChanges();
+
+      expect(localStorage.getItem(SESSION_KEY)).toBeNull();
+      expect(navigate).toHaveBeenCalledWith('/login');
+      expect(root.querySelector('nav')).toBeNull();
+    });
+
+    it('toggles the mobile menu with the burger button', () => {
+      const burger = root.querySelector<HTMLButtonElement>('button[aria-label="Меню"]')!;
+      burger.click();
+      detectChanges();
+      expect(root.querySelector('nav')!.getAttribute('data-open')).toBe('true');
+      expect(burger.getAttribute('aria-expanded')).toBe('true');
+    });
   });
 });

@@ -1,19 +1,22 @@
-import { Component, ElementRef, inject, signal } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, ElementRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
+import { APP_PATHS } from '../../core/navigation';
+import { KEYBOARD_SHORTCUTS } from '../../features/calculator/keyboard-shortcuts';
 
 interface NavLink {
   label: string;
-  href: string;
+  path: string;
 }
 
-interface NavItem {
-  label: string;
-  href?: string;
-  children?: NavLink[];
-}
+type MenuId = 'shortcuts' | 'account';
 
-const SITE = 'https://intobi.com';
+const NAV_LINKS: NavLink[] = [
+  { label: 'Калькулятор', path: APP_PATHS.calculator },
+  { label: 'Історія', path: APP_PATHS.history },
+];
 
 /** Burger icon lines; when the menu is open they morph into a cross. */
 const BURGER_LINES = [
@@ -22,62 +25,9 @@ const BURGER_LINES = [
   'group-aria-expanded:-translate-y-1.75 group-aria-expanded:-rotate-45',
 ];
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    label: 'Company',
-    children: [
-      { label: 'About Us', href: `${SITE}/about-us/` },
-      { label: 'Careers', href: `${SITE}/careers/` },
-    ],
-  },
-  {
-    label: 'Services',
-    children: [
-      { label: 'All services', href: `${SITE}/services/` },
-      { label: 'Mobile development', href: `${SITE}/services/mobile-app-development-company/` },
-      { label: 'Web development', href: `${SITE}/services/web-development-services/` },
-      { label: 'UI/UX design', href: `${SITE}/services/ux-ui-design-and-consulting-services/` },
-      { label: 'MVP development', href: `${SITE}/services/mvp-development-company/` },
-      { label: 'SaaS development', href: `${SITE}/services/saas-development-company/` },
-      {
-        label: 'Custom software development',
-        href: `${SITE}/services/custom-software-development-services/`,
-      },
-      {
-        label: 'Custom CRM development',
-        href: `${SITE}/services/custom-crm-development-services/`,
-      },
-      { label: 'ERP development', href: `${SITE}/services/erp-development-company/` },
-      {
-        label: 'Supply chain software',
-        href: `${SITE}/services/supply-chain-software-development/`,
-      },
-    ],
-  },
-  {
-    label: 'Industries',
-    children: [
-      { label: 'Construction', href: `${SITE}/services/construction-development-services/` },
-      { label: 'Manufacturing', href: `${SITE}/services/manufacturing-it-services/` },
-      { label: 'Logistics', href: `${SITE}/services/logistics-software-development-company/` },
-      { label: 'Education', href: `${SITE}/services/education-app-development-services/` },
-      {
-        label: 'Real Estate',
-        href: `${SITE}/services/real-estate-software-development-company/`,
-      },
-      { label: 'Healthcare', href: `${SITE}/services/healthcare-software-development-services/` },
-      { label: 'Entertainment', href: `${SITE}/services/entertainment-software-development/` },
-      { label: 'Telecom', href: `${SITE}/services/telecom-software-development/` },
-    ],
-  },
-  { label: 'Portfolio', href: `${SITE}/cases/` },
-  { label: 'Tech Stack', href: `${SITE}/technology/` },
-  { label: 'Blog', href: `${SITE}/blog/` },
-];
-
 @Component({
   selector: 'app-header',
-  imports: [NgTemplateOutlet, RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   host: {
     class: 'block w-full p-4',
@@ -87,19 +37,29 @@ const NAV_ITEMS: NavItem[] = [
 })
 export class Header {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  protected readonly items = NAV_ITEMS;
+  protected readonly paths = APP_PATHS;
+  protected readonly links = NAV_LINKS;
+  protected readonly shortcuts = KEYBOARD_SHORTCUTS;
   protected readonly burgerLines = BURGER_LINES;
-  protected readonly contactUrl = `${SITE}/contact/`;
-  protected readonly openMenu = signal<string | null>(null);
+  protected readonly email = this.authService.email;
+  protected readonly loggedIn = computed(() => this.authService.isAuthenticated());
+  protected readonly openMenu = signal<MenuId | null>(null);
   protected readonly mobileOpen = signal(false);
 
-  protected menuId(item: NavItem): string {
-    return `submenu-${item.label.toLowerCase().replace(/\s+/g, '-')}`;
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.closeAll());
   }
 
-  protected toggleMenu(label: string) {
-    this.openMenu.update((open) => (open === label ? null : label));
+  protected toggleMenu(id: MenuId) {
+    this.openMenu.update((open) => (open === id ? null : id));
   }
 
   protected toggleMobile() {
@@ -110,6 +70,11 @@ export class Header {
   protected closeAll() {
     this.openMenu.set(null);
     this.mobileOpen.set(false);
+  }
+
+  protected logout() {
+    this.authService.logout();
+    this.router.navigateByUrl(APP_PATHS.login);
   }
 
   protected onDocumentClick(event: MouseEvent) {
