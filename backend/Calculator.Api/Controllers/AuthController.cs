@@ -1,6 +1,8 @@
 using Calculator.Api.Dtos;
+using Calculator.Api.Extensions;
 using Calculator.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Calculator.Api.Controllers;
 
@@ -9,6 +11,7 @@ namespace Calculator.Api.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("login")]
+    [EnableRateLimiting(ServiceCollectionExtensions.LoginRateLimitPolicy)]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
         var result = await authService.LoginAsync(request.Email, request.Password);

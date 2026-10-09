@@ -6,3 +6,5 @@ public abstract class CalculationException(string message) : Exception(message);
 public class UnknownOperationException(string operation) : CalculationException($"Unknown operation '{operation}'");
 
 public class DivisionByZeroCalculatorException() : CalculationException("Division by zero");
+
+public class ResultOutOfRangeException() : CalculationException("Result is out of range");

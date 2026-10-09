@@ -16,8 +16,8 @@
       @for (item of items(); track item.id) {
         <li class="flex flex-col gap-1 border-b border-border py-3 last:border-b-0">
           <span class="text-right wrap-anywhere text-text">
-            {{ item.operandA }} {{ symbol(item.operation) }} {{ item.operandB }} =
-            <strong class="font-semibold text-highlight">{{ item.result }}</strong>
+            {{ format(item.operandA) }} {{ symbol(item.operation) }} {{ format(item.operandB) }} =
+            <strong class="font-semibold text-highlight">{{ format(item.result) }}</strong>
           </span>
           <time class="text-right text-xs text-muted" [attr.datetime]="item.createdAtUtc">
             {{ item.createdAtUtc | date: 'dd.MM.yyyy HH:mm:ss' }}

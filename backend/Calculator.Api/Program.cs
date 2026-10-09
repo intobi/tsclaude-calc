@@ -8,6 +8,8 @@ builder.Services
     .AddDataLayer(builder.Configuration.GetConnectionString("Default")!)
     .AddApplicationServices(builder.Configuration)
     .AddJwtAuthentication(builder.Configuration)
+    .AddApiErrorHandling()
+    .AddLoginRateLimiting()
     .AddFrontendCors()
     .AddOpenApi()
     .AddControllers();
@@ -21,7 +23,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
 app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

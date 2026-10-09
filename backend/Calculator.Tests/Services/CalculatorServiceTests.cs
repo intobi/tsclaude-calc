@@ -61,4 +61,15 @@ public class CalculatorServiceTests
         Assert.Contains("power", ex.Message);
         Assert.Empty(_repository.Logs);
     }
+
+    [Theory]
+    [InlineData("multiply", 1e308, 10)]
+    [InlineData("subtract", -1e308, 1e308)]
+    public async Task CalculateAsync_OverflowingResult_ThrowsAndDoesNotLog(string operation, double a, double b)
+    {
+        await Assert.ThrowsAsync<ResultOutOfRangeException>(
+            () => _service.CalculateAsync(UserId, a, b, operation));
+
+        Assert.Empty(_repository.Logs);
+    }
 }

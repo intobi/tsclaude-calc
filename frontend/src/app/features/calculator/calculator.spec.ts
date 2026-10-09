@@ -174,4 +174,42 @@ describe('Calculator', () => {
     outside.remove();
     expect(event.defaultPrevented).toBe(false);
   });
+
+  it('does not load the history while it is hidden', () => {
+    http.expectNone('/api/history');
+  });
+
+  it('sends only one request when = is pressed repeatedly', () => {
+    type('2', '+', '3', 'Enter', 'Enter', '=');
+    const requests = http.match('/api/calculate');
+    expect(requests.length).toBe(1);
+    expect(root.querySelector('section[aria-label="Калькулятор"]')!.getAttribute('aria-busy')).toBe(
+      'true',
+    );
+    requests[0].flush({ result: 5 });
+    fixture.detectChanges();
+    expect(display()).toBe('5');
+  });
+
+  it('ignores typing while a calculation is in flight', () => {
+    type('2', '+', '3', 'Enter', '9');
+    http.expectOne('/api/calculate').flush({ result: 5 });
+    fixture.detectChanges();
+    expect(display()).toBe('5');
+  });
+
+  it('cancels the request in flight with Clear', () => {
+    type('2', '+', '3', 'Enter');
+    const req = http.expectOne('/api/calculate');
+    type('Escape');
+    expect(req.cancelled).toBe(true);
+    expect(display()).toBe('0');
+  });
+
+  it('shows results without floating-point noise', () => {
+    type('0', '.', '1', '+', '0', '.', '2', 'Enter');
+    http.expectOne('/api/calculate').flush({ result: 0.1 + 0.2 });
+    fixture.detectChanges();
+    expect(display()).toBe('0.3');
+  });
 });

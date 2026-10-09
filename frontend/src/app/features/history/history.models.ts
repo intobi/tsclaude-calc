@@ -1,8 +1,8 @@
-export type HistoryOperation = 'add' | 'subtract' | 'multiply' | 'divide';
+import { Operation } from '../../core/calculator/operations';
 
 export interface HistoryItem {
   id: number;
-  operation: HistoryOperation;
+  operation: Operation;
   operandA: number;
   operandB: number;
   result: number;

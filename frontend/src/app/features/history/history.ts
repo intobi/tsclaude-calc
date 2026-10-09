@@ -1,14 +1,8 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { HistoryItem, HistoryOperation } from './history.models';
-
-const SYMBOLS: Record<HistoryOperation, string> = {
-  add: '+',
-  subtract: '−',
-  multiply: '×',
-  divide: '÷',
-};
+import { OPERATION_SYMBOLS, Operation, formatNumber } from '../../core/calculator/operations';
+import { HistoryApi } from './history-api';
+import { HistoryItem } from './history.models';
 
 @Component({
   selector: 'app-history',
@@ -17,26 +11,32 @@ const SYMBOLS: Record<HistoryOperation, string> = {
   host: { class: 'block' },
 })
 export class History {
-  private readonly http = inject(HttpClient);
+  private readonly historyApi = inject(HistoryApi);
 
-  /** Bump this value to reload the history (e.g. after a new calculation). */
-  readonly refreshKey = input(0);
+  /** The history is fetched each time it becomes visible, so it is never stale and never loaded while hidden. */
+  readonly active = input(false);
 
   protected readonly items = signal<HistoryItem[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal('');
+  protected readonly format = formatNumber;
 
   constructor() {
     effect(() => {
-      this.refreshKey();
-      this.load();
+      if (this.active()) {
+        untracked(() => this.load());
+      }
     });
+  }
+
+  protected symbol(operation: Operation): string {
+    return OPERATION_SYMBOLS[operation] ?? operation;
   }
 
   private load() {
     this.loading.set(true);
     this.error.set('');
-    this.http.get<HistoryItem[]>('/api/history').subscribe({
+    this.historyApi.getLatest().subscribe({
       next: (items) => {
         this.items.set(items);
         this.loading.set(false);
@@ -46,9 +46,5 @@ export class History {
         this.loading.set(false);
       },
     });
-  }
-
-  protected symbol(operation: HistoryOperation): string {
-    return SYMBOLS[operation] ?? operation;
   }
 }

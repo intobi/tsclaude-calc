@@ -17,6 +17,11 @@ internal class CalculatorService(IUserCalcLogRepository calcLogRepository, TimeP
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
         var result = Compute(a, b, operation);
+        // Infinity/NaN cannot be serialized to JSON and must never reach the history table.
+        if (!double.IsFinite(result))
+        {
+            throw new ResultOutOfRangeException();
+        }
 
         await calcLogRepository.AddAsync(
             new UserCalcLog

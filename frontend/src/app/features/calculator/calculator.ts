@@ -3,22 +3,21 @@ import {
   DestroyRef,
   ElementRef,
   computed,
-  effect,
   inject,
   signal,
-  untracked,
   viewChild,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { Subscription, filter, map } from 'rxjs';
+import {
+  OPERATION_SYMBOLS as SYMBOLS,
+  Operation,
+  formatNumber,
+} from '../../core/calculator/operations';
 import { APP_PATHS } from '../../core/navigation';
 import { History } from '../history/history';
-
-type Operation = 'add' | 'subtract' | 'multiply' | 'divide';
-
-const SYMBOLS: Record<Operation, string> = { add: '+', subtract: '−', multiply: '×', divide: '÷' };
+import { CalculatorApi } from './calculator-api';
 
 type KeyKind = 'digit' | 'op' | 'eq' | 'clear' | 'backspace';
 
@@ -112,7 +111,7 @@ const isEditable = (target: EventTarget | null): boolean =>
   },
 })
 export class Calculator {
-  private readonly http = inject(HttpClient);
+  private readonly calculatorApi = inject(CalculatorApi);
   private readonly router = inject(Router);
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -131,7 +130,8 @@ export class Calculator {
   protected readonly historyOpen = computed(
     () => this.url().split(/[?#]/)[0] === APP_PATHS.history,
   );
-  protected readonly historyVersion = signal(0);
+  /** A calculation request is in flight; further input waits for it (Clear cancels it). */
+  protected readonly busy = signal(false);
   protected readonly pressedKey = signal<Key | null>(null);
   private readonly keypad = viewChild<ElementRef<HTMLElement>>('keypad');
 
@@ -139,19 +139,17 @@ export class Calculator {
   private pending: Operation | null = null;
   private fresh = true;
   private pressTimer?: ReturnType<typeof setTimeout>;
+  private request?: Subscription;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => clearTimeout(this.pressTimer));
-
-    // Reload so the history side shows calculations made since it was last opened.
-    effect(() => {
-      if (this.historyOpen()) {
-        untracked(() => this.historyVersion.update((v) => v + 1));
-      }
+    inject(DestroyRef).onDestroy(() => {
+      clearTimeout(this.pressTimer);
+      this.request?.unsubscribe();
     });
   }
 
   protected onKey(key: Key) {
+    if (this.busy() && key.kind !== 'clear') return;
     switch (key.kind) {
       case 'digit':
         return this.press(key.label);
@@ -230,27 +228,32 @@ export class Calculator {
     const op = this.pending;
     const a = this.first;
     const b = Number(this.display());
-    this.http.post<{ result: number }>('/api/calculate', { a, b, operation: op }).subscribe({
-      next: ({ result }) => {
-        this.display.set(String(result));
-        this.first = result;
+    this.busy.set(true);
+    this.request = this.calculatorApi.calculate(a, b, op).subscribe({
+      next: (result) => {
+        const shown = formatNumber(result);
+        this.busy.set(false);
+        this.display.set(shown);
+        this.first = Number(shown);
         this.fresh = true;
         if (next) {
           this.pending = next;
-          this.expression.set(`${result} ${SYMBOLS[next]}`);
+          this.expression.set(`${shown} ${SYMBOLS[next]}`);
         } else {
           this.pending = null;
-          this.expression.set(`${a} ${SYMBOLS[op]} ${b} =`);
+          this.expression.set(`${formatNumber(a)} ${SYMBOLS[op]} ${formatNumber(b)} =`);
         }
       },
       error: (e) => {
-        this.error.set(e.error?.error ?? 'Server error');
         this.clear();
+        this.error.set(e.error?.error ?? 'Помилка сервера');
       },
     });
   }
 
   private clear() {
+    this.request?.unsubscribe();
+    this.busy.set(false);
     this.display.set('0');
     this.expression.set('');
     this.first = null;
