@@ -1,0 +1,104 @@
+<header class="relative mx-auto max-w-360">
+  <div class="flex items-center gap-8 rounded-card border border-border bg-surface py-2 pr-2 pl-4">
+    <a
+      class="flex flex-1 rounded-control focus-ring"
+      routerLink="/"
+      aria-label="Intobi — на головну"
+    >
+      <img class="block" src="intobi-logo.svg" alt="" width="151" height="32" />
+    </a>
+
+    <nav
+      id="site-nav"
+      class="max-nav:absolute max-nav:inset-x-0 max-nav:top-[calc(100%+0.5rem)] max-nav:z-10 max-nav:hidden max-nav:max-h-[calc(100vh-6rem)] max-nav:overflow-y-auto max-nav:rounded-card max-nav:border max-nav:border-border max-nav:bg-surface max-nav:p-4 max-nav:shadow-popover max-nav:data-[open=true]:block"
+      aria-label="Головне меню"
+      [attr.data-open]="mobileOpen()"
+    >
+      <ul class="m-0 list-none p-0 nav:flex nav:items-center nav:gap-4">
+        @for (item of items; track item.label) {
+          <li class="nav:relative">
+            @if (item.children) {
+              <button
+                type="button"
+                class="group inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent py-3 text-base leading-tight font-semibold whitespace-nowrap text-title focus-ring transition-colors hover:text-outline max-nav:w-full max-nav:justify-between"
+                [attr.aria-expanded]="openMenu() === item.label"
+                [attr.aria-controls]="menuId(item)"
+                (click)="toggleMenu(item.label)"
+              >
+                {{ item.label }}
+                <img
+                  class="transition-transform group-aria-expanded:rotate-180"
+                  src="chevron-down.svg"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+              </button>
+              <ul
+                class="m-0 list-none p-2 max-nav:pt-0 nav:absolute nav:top-[calc(100%+0.5rem)] nav:-left-3 nav:z-10 nav:min-w-60 nav:rounded-control nav:border nav:border-border nav:bg-surface nav:shadow-popover"
+                [id]="menuId(item)"
+                [hidden]="openMenu() !== item.label"
+              >
+                @for (child of item.children; track child.href) {
+                  <li>
+                    <a
+                      class="block rounded-control px-3 py-2 text-text no-underline focus-ring transition-colors hover:bg-field-bg hover:text-title"
+                      [href]="child.href"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {{ child.label }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <a
+                class="inline-flex items-center py-3 leading-tight font-semibold whitespace-nowrap text-title no-underline focus-ring transition-colors hover:text-outline max-nav:w-full"
+                [href]="item.href"
+                target="_blank"
+                rel="noopener"
+              >
+                {{ item.label }}
+              </a>
+            }
+          </li>
+        }
+        <li class="pt-3 nav:hidden">
+          <ng-container [ngTemplateOutlet]="contact" />
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex flex-1 justify-end max-nav:hidden">
+      <ng-container [ngTemplateOutlet]="contact" />
+    </div>
+
+    <button
+      type="button"
+      class="group flex size-12 cursor-pointer flex-col justify-center gap-1.25 rounded-control border-0 bg-field-bg px-3 focus-ring nav:hidden"
+      aria-controls="site-nav"
+      aria-label="Меню"
+      [attr.aria-expanded]="mobileOpen()"
+      (click)="toggleMobile()"
+    >
+      @for (line of burgerLines; track $index) {
+        <span
+          class="block h-0.5 rounded-full bg-title transition-[transform,opacity]"
+          [class]="line"
+        ></span>
+      }
+    </button>
+  </div>
+</header>
+
+<ng-template #contact>
+  <a
+    class="inline-flex items-center rounded-control border border-outline px-5 py-3.5 leading-tight font-semibold whitespace-nowrap text-outline no-underline focus-ring transition-colors hover:bg-outline-hover"
+    [href]="contactUrl"
+    target="_blank"
+    rel="noopener"
+  >
+    Contact Us
+  </a>
+</ng-template>

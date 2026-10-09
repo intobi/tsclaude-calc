@@ -1,29 +1,31 @@
-<h1 class="title"><span class="title-accent">Вхід</span></h1>
-<form class="login-card" (ngSubmit)="submit()">
-  <label class="field">
-    Email
-    <input
-      type="email"
-      name="email"
-      autocomplete="username"
-      [(ngModel)]="emailInput"
-      required
-    />
-  </label>
-  <label class="field">
-    Пароль
-    <input
-      type="password"
-      name="password"
-      autocomplete="current-password"
-      [(ngModel)]="passwordInput"
-      required
-    />
-  </label>
-  @if (error()) {
-    <div class="error" role="alert">{{ error() }}</div>
+<h1 class="m-0 text-center font-title text-[2rem] leading-tight font-normal text-title">
+  <span class="title-accent">Вхід</span>
+</h1>
+<form
+  class="flex w-full max-w-92 flex-col gap-4 rounded-card border border-border bg-surface p-8"
+  (ngSubmit)="submit()"
+>
+  @for (field of fields; track field.name) {
+    <label class="flex flex-col gap-2 text-sm text-muted">
+      {{ field.label }}
+      <input
+        class="rounded-control border border-field-border bg-field-bg px-4 py-3 text-base text-title focus-ring transition-colors hover:bg-field-hover"
+        [type]="field.type"
+        [name]="field.name"
+        [autocomplete]="field.autocomplete"
+        [(ngModel)]="credentials[field.name]"
+        required
+      />
+    </label>
   }
-  <button type="submit" class="submit" [disabled]="loading()">
+  @if (error()) {
+    <div class="text-sm text-error" role="alert">{{ error() }}</div>
+  }
+  <button
+    type="submit"
+    class="cursor-pointer self-start rounded-control border-0 bg-primary px-6 py-3 leading-tight font-semibold text-on-primary focus-ring transition-colors not-disabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+    [disabled]="loading()"
+  >
     {{ loading() ? 'Вхід...' : 'Увійти' }}
   </button>
 </form>

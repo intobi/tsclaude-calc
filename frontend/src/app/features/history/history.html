@@ -1,20 +1,25 @@
-<section class="history" aria-labelledby="history-title">
-  <h2 id="history-title" class="history-title">History</h2>
+<section
+  class="flex h-full flex-col rounded-card border border-border bg-surface p-8"
+  aria-labelledby="history-title"
+>
+  <h2 id="history-title" class="m-0 mb-4 font-title text-2xl leading-tight font-normal text-title">
+    History
+  </h2>
   @if (loading()) {
-    <p class="message" role="status">Завантаження…</p>
+    <p class="m-0 text-sm text-muted" role="status">Завантаження…</p>
   } @else if (error()) {
-    <p class="message message--error" role="alert">{{ error() }}</p>
+    <p class="m-0 text-sm text-error" role="alert">{{ error() }}</p>
   } @else if (items().length === 0) {
-    <p class="message">Історія порожня</p>
+    <p class="m-0 text-sm text-muted">Історія порожня</p>
   } @else {
-    <ol class="list">
+    <ol class="m-0 flex min-h-0 flex-1 list-none flex-col overflow-y-auto p-0 pr-3">
       @for (item of items(); track item.id) {
-        <li class="item">
-          <span class="expr">
+        <li class="flex flex-col gap-1 border-b border-border py-3 last:border-b-0">
+          <span class="text-right wrap-anywhere text-text">
             {{ item.operandA }} {{ symbol(item.operation) }} {{ item.operandB }} =
-            <strong class="result">{{ item.result }}</strong>
+            <strong class="font-semibold text-highlight">{{ item.result }}</strong>
           </span>
-          <time class="time" [attr.datetime]="item.createdAtUtc">
+          <time class="text-right text-xs text-muted" [attr.datetime]="item.createdAtUtc">
             {{ item.createdAtUtc | date: 'dd.MM.yyyy HH:mm:ss' }}
           </time>
         </li>

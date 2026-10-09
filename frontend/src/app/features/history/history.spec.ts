@@ -42,7 +42,7 @@ describe('History', () => {
     ]);
     fixture.detectChanges();
 
-    const items = Array.from(root.querySelectorAll('.expr')).map((e) =>
+    const items = Array.from(root.querySelectorAll('li > span')).map((e) =>
       e.textContent!.replace(/\s+/g, ' ').trim(),
     );
     expect(items).toEqual(['6 × 7 = 42', '1 + 2 = 3']);
@@ -51,7 +51,7 @@ describe('History', () => {
   it('shows an empty state', () => {
     http.expectOne('/api/history').flush([]);
     fixture.detectChanges();
-    expect(root.querySelector('.message')!.textContent!.trim()).toBe('Історія порожня');
+    expect(root.querySelector('p')!.textContent!.trim()).toBe('Історія порожня');
   });
 
   it('reloads when refreshKey changes', () => {

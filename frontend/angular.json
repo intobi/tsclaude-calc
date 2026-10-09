@@ -29,7 +29,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/tailwind.css",
+              "src/styles.scss"
             ],
             "inlineStyleLanguage": "scss"
           },

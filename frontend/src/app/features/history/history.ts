@@ -13,8 +13,8 @@ const SYMBOLS: Record<HistoryOperation, string> = {
 @Component({
   selector: 'app-history',
   imports: [DatePipe],
-  styleUrl: './history.css',
   templateUrl: './history.html',
+  host: { class: 'block' },
 })
 export class History {
   private readonly http = inject(HttpClient);
