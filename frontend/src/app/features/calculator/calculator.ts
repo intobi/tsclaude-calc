@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { History } from '../history/history';
 
 type Operation = 'add' | 'subtract' | 'multiply' | 'divide';
 
@@ -45,6 +46,7 @@ const KEYS: Key[] = [
 
 @Component({
   selector: 'app-calculator',
+  imports: [History],
   styleUrl: './calculator.css',
   templateUrl: './calculator.html',
 })
@@ -58,6 +60,8 @@ export class Calculator {
   protected readonly error = signal('');
   protected readonly keys = KEYS;
   protected readonly email = this.authService.email;
+  protected readonly historyOpen = signal(false);
+  protected readonly historyVersion = signal(0);
 
   private first: number | null = null;
   private pending: Operation | null = null;
@@ -74,6 +78,10 @@ export class Calculator {
       case 'clear':
         return this.clear();
     }
+  }
+
+  protected toggleHistory() {
+    this.historyOpen.update((open) => !open);
   }
 
   protected logout() {
@@ -110,6 +118,7 @@ export class Calculator {
     this.http.post<{ result: number }>('/api/calculate', { a, b, operation: op }).subscribe({
       next: ({ result }) => {
         this.display.set(String(result));
+        this.historyVersion.update((v) => v + 1);
         this.first = result;
         this.fresh = true;
         if (next) {

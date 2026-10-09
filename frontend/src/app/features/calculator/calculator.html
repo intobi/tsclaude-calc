@@ -1,7 +1,18 @@
 <h1 class="title">Супер Калькулятор</h1>
 <div class="user-bar">
   <span class="user-email">{{ email() }}</span>
-  <button type="button" class="logout" (click)="logout()">Вийти</button>
+  <div class="actions">
+    <button
+      type="button"
+      class="bar-button"
+      aria-controls="history-panel"
+      [attr.aria-expanded]="historyOpen()"
+      (click)="toggleHistory()"
+    >
+      History
+    </button>
+    <button type="button" class="bar-button" (click)="logout()">Вийти</button>
+  </div>
 </div>
 <main class="calc">
   <div class="screen" role="status" aria-live="polite">
@@ -24,3 +35,6 @@
     }
   </div>
 </main>
+@if (historyOpen()) {
+  <app-history id="history-panel" [refreshKey]="historyVersion()" />
+}

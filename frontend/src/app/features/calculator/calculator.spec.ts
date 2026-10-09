@@ -50,4 +50,13 @@ describe('Calculator', () => {
     fixture.detectChanges();
     expect(display()).toBe('42');
   });
+
+  it('toggles the history panel with the History button', () => {
+    expect(root.querySelector('app-history')).toBeNull();
+    click('History');
+    expect(root.querySelector('app-history')).not.toBeNull();
+    http.expectOne('/api/history').flush([]);
+    click('History');
+    expect(root.querySelector('app-history')).toBeNull();
+  });
 });
