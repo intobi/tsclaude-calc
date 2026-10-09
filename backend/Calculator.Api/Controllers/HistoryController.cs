@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Calculator.Api.Dtos;
-using Calculator.Api.Repositories;
+using Calculator.Api.Extensions;
+using Calculator.Services.History;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,31 +9,22 @@ namespace Calculator.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/history")]
-public class HistoryController(IUserCalcLogRepository calcLogRepository) : ControllerBase
+public class HistoryController(IHistoryService historyService) : ControllerBase
 {
-    private const int DefaultLimit = 50;
-    private const int MaxLimit = 200;
-
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<HistoryItemResponse>>> Get([FromQuery] int limit = DefaultLimit)
+    public async Task<ActionResult<IReadOnlyList<HistoryItemResponse>>> Get(
+        CancellationToken cancellationToken,
+        [FromQuery] int limit = IHistoryService.DefaultLimit)
     {
-        if (limit is < 1 or > MaxLimit)
+        if (limit is < 1 or > IHistoryService.MaxLimit)
         {
-            return BadRequest(new ErrorResponse($"limit must be between 1 and {MaxLimit}"));
+            return BadRequest(new ErrorResponse($"limit must be between 1 and {IHistoryService.MaxLimit}"));
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var logs = await calcLogRepository.GetLatestForUserAsync(userId, limit);
-
-        // SQLite does not preserve DateTimeKind; values are stored as UTC.
-        return Ok(logs
-            .Select(log => new HistoryItemResponse(
-                log.Id,
-                log.Operation,
-                log.OperandA,
-                log.OperandB,
-                log.Result,
-                DateTime.SpecifyKind(log.CreatedAtUtc, DateTimeKind.Utc)))
+        var items = await historyService.GetLatestAsync(User.GetUserId(), limit, cancellationToken);
+        return Ok(items
+            .Select(item => new HistoryItemResponse(
+                item.Id, item.Operation, item.OperandA, item.OperandB, item.Result, item.CreatedAtUtc))
             .ToList());
     }
 }

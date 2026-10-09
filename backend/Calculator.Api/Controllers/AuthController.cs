@@ -1,5 +1,5 @@
 using Calculator.Api.Dtos;
-using Calculator.Api.Services;
+using Calculator.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calculator.Api.Controllers;
@@ -14,6 +14,6 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.LoginAsync(request.Email, request.Password);
         return result is null
             ? Unauthorized(new ErrorResponse("Invalid email or password"))
-            : Ok(result);
+            : Ok(new LoginResponse(result.Token, result.Email, result.ExpiresAtUtc));
     }
 }

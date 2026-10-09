@@ -1,6 +1,30 @@
 @Calculator.Api_HostAddress = http://localhost:5278
 
-GET {{Calculator.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+# Seeded dev account (see Calculator.Data/SeedUsers.cs).
+# @name login
+POST {{Calculator.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "andrew.t@intobi.com",
+  "password": "1111"
+}
+
+###
+
+POST {{Calculator.Api_HostAddress}}/api/calculate
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "a": 6,
+  "b": 7,
+  "operation": "multiply"
+}
+
+###
+
+GET {{Calculator.Api_HostAddress}}/api/history?limit=10
+Authorization: Bearer {{login.response.body.$.token}}
 
 ###

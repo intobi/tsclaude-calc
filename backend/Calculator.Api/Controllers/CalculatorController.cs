@@ -1,8 +1,7 @@
-using System.Security.Claims;
 using Calculator.Api.Dtos;
-using Calculator.Api.Entities;
-using Calculator.Api.Repositories;
-using Calculator.Api.Services;
+using Calculator.Api.Extensions;
+using Calculator.Services.Calculations;
+using Calculator.Services.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,33 +10,22 @@ namespace Calculator.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api")]
-public class CalculatorController(ICalculatorService calculatorService, IUserCalcLogRepository calcLogRepository)
-    : ControllerBase
+public class CalculatorController(ICalculatorService calculatorService) : ControllerBase
 {
     [HttpPost("calculate")]
-    public async Task<ActionResult<CalculationResponse>> Calculate(CalculationRequest request)
+    public async Task<ActionResult<CalculationResponse>> Calculate(
+        CalculationRequest request,
+        CancellationToken cancellationToken)
     {
-        double result;
         try
         {
-            result = calculatorService.Calculate(request.A, request.B, request.Operation);
+            var result = await calculatorService.CalculateAsync(
+                User.GetUserId(), request.A, request.B, request.Operation, cancellationToken);
+            return Ok(new CalculationResponse(result));
         }
-        catch (Exception ex) when (ex is DivisionByZeroCalculatorException or UnknownOperationException)
+        catch (CalculationException ex)
         {
             return BadRequest(new ErrorResponse(ex.Message));
         }
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        await calcLogRepository.AddAsync(new UserCalcLog
-        {
-            UserId = userId,
-            Operation = request.Operation,
-            OperandA = request.A,
-            OperandB = request.B,
-            Result = result,
-            CreatedAtUtc = DateTime.UtcNow,
-        });
-
-        return Ok(new CalculationResponse(result));
     }
 }
