@@ -1,5 +1,4 @@
-using Calculator.Contracts.History;
-using Calculator.Contracts.Persistence;
+using Calculator.Data.Entities;
 using Calculator.Services.History;
 using Calculator.Tests.Fakes;
 
@@ -16,14 +15,15 @@ public class HistoryServiceTests
     }
 
     private async Task AddLogAsync(string userId, double result) =>
-        await _repository.AddAsync(new CalculationLog(
-            Id: 0,
-            UserId: userId,
-            Operation: "add",
-            OperandA: result,
-            OperandB: 0,
-            Result: result,
-            CreatedAtUtc: new DateTime(2026, 10, 9, 12, 0, 0, DateTimeKind.Unspecified)));
+        await _repository.AddAsync(new UserCalcLog
+        {
+            UserId = userId,
+            Operation = "add",
+            OperandA = result,
+            OperandB = 0,
+            Result = result,
+            CreatedAtUtc = new DateTime(2026, 10, 9, 12, 0, 0, DateTimeKind.Unspecified),
+        });
 
     [Fact]
     public async Task GetLatestAsync_ReturnsOnlyTheUsersItemsNewestFirst()
@@ -35,16 +35,6 @@ public class HistoryServiceTests
         var items = await _service.GetLatestAsync("me");
 
         Assert.Equal([3d, 1d], items.Select(i => i.Result));
-    }
-
-    [Fact]
-    public async Task GetLatestAsync_MarksTimestampsAsUtc()
-    {
-        await AddLogAsync("me", 1);
-
-        var item = Assert.Single(await _service.GetLatestAsync("me"));
-
-        Assert.Equal(DateTimeKind.Utc, item.CreatedAtUtc.Kind);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
-namespace Calculator.Contracts.Auth;
+using Calculator.Services.Models;
 
-/// <summary>Signs users in and issues access tokens.</summary>
+namespace Calculator.Services.Auth;
+
 public interface IAuthService
 {
     /// <returns>The issued token, or <c>null</c> when the credentials are invalid.</returns>

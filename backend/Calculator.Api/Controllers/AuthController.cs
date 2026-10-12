@@ -1,6 +1,8 @@
-using Calculator.Api.Dtos;
 using Calculator.Api.Extensions;
+using Calculator.Api.Mapping;
+using Calculator.Contracts;
 using Calculator.Contracts.Auth;
+using Calculator.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -8,7 +10,7 @@ namespace Calculator.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IDtoMapper mapper) : ControllerBase
 {
     [HttpPost("login")]
     [EnableRateLimiting(ServiceCollectionExtensions.LoginRateLimitPolicy)]
@@ -17,6 +19,6 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.LoginAsync(request.Email, request.Password, cancellationToken);
         return result is null
             ? Unauthorized(new ErrorResponse("Invalid email or password"))
-            : Ok(new LoginResponse(result.Token, result.Email, result.ExpiresAtUtc));
+            : Ok(mapper.ToLoginResponse(result));
     }
 }

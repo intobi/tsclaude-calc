@@ -1,5 +1,6 @@
-namespace Calculator.Api.Dtos;
+namespace Calculator.Contracts.History;
 
+/// <summary>One row of the history list.</summary>
 public record HistoryItemResponse(
     int Id,
     string Operation,

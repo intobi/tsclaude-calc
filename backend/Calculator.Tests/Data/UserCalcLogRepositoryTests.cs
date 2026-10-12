@@ -1,5 +1,5 @@
-using Calculator.Contracts.Persistence;
 using Calculator.Data;
+using Calculator.Data.Entities;
 using Calculator.Data.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +30,15 @@ public sealed class UserCalcLogRepositoryTests : IDisposable
         _connection.Dispose();
     }
 
-    private static CalculationLog Log(string userId, double result) =>
-        new(Id: 0, userId, "add", result, 0, result, DateTime.UtcNow);
+    private static UserCalcLog Log(string userId, double result) => new()
+    {
+        UserId = userId,
+        Operation = "add",
+        OperandA = result,
+        OperandB = 0,
+        Result = result,
+        CreatedAtUtc = DateTime.UtcNow,
+    };
 
     [Fact]
     public async Task AddAsync_PersistsTheLog()

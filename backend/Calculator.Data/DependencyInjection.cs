@@ -1,4 +1,3 @@
-using Calculator.Contracts.Persistence;
 using Calculator.Data.Entities;
 using Calculator.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +8,7 @@ namespace Calculator.Data;
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registers the EF Core context, the ASP.NET Core Identity user store and the repository
-    /// implementations of the <c>Calculator.Contracts.Persistence</c> interfaces.
+    /// Registers the EF Core context, the ASP.NET Core Identity user store and the repositories.
     /// </summary>
     public static IServiceCollection AddDataLayer(this IServiceCollection services, string connectionString)
     {

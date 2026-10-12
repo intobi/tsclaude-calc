@@ -1,40 +1,33 @@
-using Calculator.Contracts.Calculations;
-using Calculator.Contracts.Exceptions;
-using Calculator.Contracts.Persistence;
+using Calculator.Data.Entities;
+using Calculator.Data.Repositories;
+using Calculator.Services.Exceptions;
 
 namespace Calculator.Services.Calculations;
 
 internal class CalculatorService(IUserCalcLogRepository calcLogRepository, TimeProvider timeProvider)
     : ICalculatorService
 {
-    public async Task<double> CalculateAsync(
+    public async Task<UserCalcLog> CalculateAsync(
         string userId,
-        double a,
-        double b,
-        string operation,
+        UserCalcLog calculation,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentNullException.ThrowIfNull(calculation);
 
-        var result = Compute(a, b, operation);
+        var result = Compute(calculation.OperandA, calculation.OperandB, calculation.Operation);
         // Infinity/NaN cannot be serialized to JSON and must never reach the history table.
         if (!double.IsFinite(result))
         {
             throw new ResultOutOfRangeException();
         }
 
-        await calcLogRepository.AddAsync(
-            new CalculationLog(
-                Id: 0,
-                UserId: userId,
-                Operation: operation,
-                OperandA: a,
-                OperandB: b,
-                Result: result,
-                CreatedAtUtc: timeProvider.GetUtcNow().UtcDateTime),
-            cancellationToken);
+        calculation.UserId = userId;
+        calculation.Result = result;
+        calculation.CreatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
+        await calcLogRepository.AddAsync(calculation, cancellationToken);
 
-        return result;
+        return calculation;
     }
 
     internal static double Compute(double a, double b, string operation) => operation switch

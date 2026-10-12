@@ -1,5 +1,6 @@
-using Calculator.Contracts.Exceptions;
+using Calculator.Data.Entities;
 using Calculator.Services.Calculations;
+using Calculator.Services.Exceptions;
 using Calculator.Tests.Fakes;
 
 namespace Calculator.Tests.Services;
@@ -17,6 +18,9 @@ public class CalculatorServiceTests
         _service = new CalculatorService(_repository, new FixedTimeProvider(Now));
     }
 
+    private Task<UserCalcLog> CalculateAsync(double a, double b, string operation) =>
+        _service.CalculateAsync(UserId, new UserCalcLog { OperandA = a, OperandB = b, Operation = operation });
+
     [Theory]
     [InlineData("add", 6, 7, 13)]
     [InlineData("subtract", 6, 7, -1)]
@@ -24,15 +28,15 @@ public class CalculatorServiceTests
     [InlineData("divide", 8, 2, 4)]
     public async Task CalculateAsync_ReturnsResult(string operation, double a, double b, double expected)
     {
-        var result = await _service.CalculateAsync(UserId, a, b, operation);
+        var calculation = await CalculateAsync(a, b, operation);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(expected, calculation.Result);
     }
 
     [Fact]
     public async Task CalculateAsync_LogsTheCalculationForTheUser()
     {
-        await _service.CalculateAsync(UserId, 6, 7, "multiply");
+        await CalculateAsync(6, 7, "multiply");
 
         var log = Assert.Single(_repository.Logs);
         Assert.Equal(UserId, log.UserId);
@@ -47,7 +51,7 @@ public class CalculatorServiceTests
     public async Task CalculateAsync_DivisionByZero_ThrowsAndDoesNotLog()
     {
         await Assert.ThrowsAsync<DivisionByZeroCalculatorException>(
-            () => _service.CalculateAsync(UserId, 1, 0, "divide"));
+            () => CalculateAsync(1, 0, "divide"));
 
         Assert.Empty(_repository.Logs);
     }
@@ -56,7 +60,7 @@ public class CalculatorServiceTests
     public async Task CalculateAsync_UnknownOperation_ThrowsAndDoesNotLog()
     {
         var ex = await Assert.ThrowsAsync<UnknownOperationException>(
-            () => _service.CalculateAsync(UserId, 1, 2, "power"));
+            () => CalculateAsync(1, 2, "power"));
 
         Assert.Contains("power", ex.Message);
         Assert.Empty(_repository.Logs);
@@ -68,7 +72,7 @@ public class CalculatorServiceTests
     public async Task CalculateAsync_OverflowingResult_ThrowsAndDoesNotLog(string operation, double a, double b)
     {
         await Assert.ThrowsAsync<ResultOutOfRangeException>(
-            () => _service.CalculateAsync(UserId, a, b, operation));
+            () => CalculateAsync(a, b, operation));
 
         Assert.Empty(_repository.Logs);
     }

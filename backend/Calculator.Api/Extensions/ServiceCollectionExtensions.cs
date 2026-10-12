@@ -1,8 +1,9 @@
 using System.Text;
 using System.Threading.RateLimiting;
-using Calculator.Api.Dtos;
 using Calculator.Api.Infrastructure;
-using Calculator.Contracts.Auth;
+using Calculator.Api.Mapping;
+using Calculator.Contracts;
+using Calculator.Services.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,6 +49,10 @@ public static class ServiceCollectionExtensions
         services.AddCors(options =>
             options.AddPolicy(FrontendCorsPolicy, policy =>
                 policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
+
+    /// <summary>Registers the DTO ⇄ entity mapper used by the controllers. It is stateless, so one instance is shared.</summary>
+    public static IServiceCollection AddDtoMapping(this IServiceCollection services) =>
+        services.AddSingleton<IDtoMapper, DtoMapper>();
 
     public static IServiceCollection AddApiErrorHandling(this IServiceCollection services) =>
         services

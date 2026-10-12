@@ -1,23 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!--
-    Shared contracts: interfaces and models only, no implementations and no third-party dependencies.
-    Owned by the core team and shipped as a NuGet package, so implementation teams
-    (services, data) depend on the contracts and never on each other.
-  -->
+  <!-- Request/response models exchanged with the frontend. No logic and no dependencies. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Label="NuGet package">
-    <PackageId>Calculator.Contracts</PackageId>
-    <Version>$(ContractsVersion)</Version>
-    <Authors>Calculator core team</Authors>
-    <Description>Interfaces and models shared by the Calculator API, services and data layers.</Description>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
 </Project>

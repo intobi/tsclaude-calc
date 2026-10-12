@@ -8,6 +8,7 @@ builder.Services
     .AddDataLayer(builder.Configuration.GetConnectionString("Default")!)
     .AddApplicationServices(builder.Configuration)
     .AddJwtAuthentication(builder.Configuration)
+    .AddDtoMapping()
     .AddApiErrorHandling()
     .AddLoginRateLimiting()
     .AddFrontendCors()

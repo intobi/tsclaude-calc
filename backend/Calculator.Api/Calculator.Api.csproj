@@ -13,15 +13,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- Source generator: mapping code is generated at compile time, nothing is shipped at runtime. -->
+    <PackageReference Include="Riok.Mapperly" Version="4.3.1" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Implementations, referenced only to register them in the composition root (Program.cs). -->
+    <ProjectReference Include="..\Calculator.Contracts\Calculator.Contracts.csproj" />
     <ProjectReference Include="..\Calculator.Data\Calculator.Data.csproj" />
     <ProjectReference Include="..\Calculator.Services\Calculator.Services.csproj" />
   </ItemGroup>
-
-  <!-- Controllers code against the contracts only. -->
-  <Import Project="..\build\ContractsReference.props" />
 
 </Project>

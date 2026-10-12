@@ -21,10 +21,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Calculator.Api\Calculator.Api.csproj" />
+    <ProjectReference Include="..\Calculator.Contracts\Calculator.Contracts.csproj" />
     <ProjectReference Include="..\Calculator.Data\Calculator.Data.csproj" />
     <ProjectReference Include="..\Calculator.Services\Calculator.Services.csproj" />
   </ItemGroup>
-
-  <Import Project="..\build\ContractsReference.props" />
 
 </Project>

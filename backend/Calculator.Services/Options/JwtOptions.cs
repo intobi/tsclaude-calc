@@ -1,4 +1,4 @@
-namespace Calculator.Contracts.Auth;
+namespace Calculator.Services.Options;
 
 /// <summary>
 /// JWT settings (configuration section <c>Jwt</c>), shared by the token issuer and the API that validates tokens.

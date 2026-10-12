@@ -1,12 +1,13 @@
-using Calculator.Contracts.Persistence;
+using Calculator.Data.Entities;
+using Calculator.Data.Repositories;
 
 namespace Calculator.Tests.Fakes;
 
-internal class FakeUserRepository(UserAccount account, string password) : IUserRepository
+internal class FakeUserRepository(ApplicationUser user, string password) : IUserRepository
 {
-    public Task<UserAccount?> FindByCredentialsAsync(
+    public Task<ApplicationUser?> FindByCredentialsAsync(
         string email,
         string candidatePassword,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(email == account.Email && candidatePassword == password ? account : null);
+        Task.FromResult(email == user.Email && candidatePassword == password ? user : null);
 }

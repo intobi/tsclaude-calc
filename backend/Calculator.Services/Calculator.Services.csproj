@@ -15,7 +15,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
   </ItemGroup>
 
-  <!-- Services only know the contracts; the data layer is plugged in by the API's composition root. -->
-  <Import Project="..\build\ContractsReference.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\Calculator.Data\Calculator.Data.csproj" />
+  </ItemGroup>
 
 </Project>

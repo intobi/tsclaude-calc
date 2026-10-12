@@ -1,11 +1,11 @@
-using Calculator.Contracts.History;
-using Calculator.Contracts.Persistence;
+using Calculator.Data.Entities;
+using Calculator.Data.Repositories;
 
 namespace Calculator.Services.History;
 
 internal class HistoryService(IUserCalcLogRepository calcLogRepository) : IHistoryService
 {
-    public async Task<IReadOnlyList<HistoryItem>> GetLatestAsync(
+    public Task<IReadOnlyList<UserCalcLog>> GetLatestAsync(
         string userId,
         int limit = IHistoryService.DefaultLimit,
         CancellationToken cancellationToken = default)
@@ -14,17 +14,6 @@ internal class HistoryService(IUserCalcLogRepository calcLogRepository) : IHisto
         ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(limit, IHistoryService.MaxLimit);
 
-        var logs = await calcLogRepository.GetLatestForUserAsync(userId, limit, cancellationToken);
-
-        // SQLite does not preserve DateTimeKind; values are stored as UTC.
-        return logs
-            .Select(log => new HistoryItem(
-                log.Id,
-                log.Operation,
-                log.OperandA,
-                log.OperandB,
-                log.Result,
-                DateTime.SpecifyKind(log.CreatedAtUtc, DateTimeKind.Utc)))
-            .ToList();
+        return calcLogRepository.GetLatestForUserAsync(userId, limit, cancellationToken);
     }
 }
