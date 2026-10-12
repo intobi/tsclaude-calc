@@ -16,8 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Implementations, referenced only to register them in the composition root (Program.cs). -->
     <ProjectReference Include="..\Calculator.Data\Calculator.Data.csproj" />
     <ProjectReference Include="..\Calculator.Services\Calculator.Services.csproj" />
   </ItemGroup>
+
+  <!-- Controllers code against the contracts only. -->
+  <Import Project="..\build\ContractsReference.props" />
 
 </Project>

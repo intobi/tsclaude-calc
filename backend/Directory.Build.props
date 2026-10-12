@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Version of the shared contracts package (Calculator.Contracts). Bump it on every contract change. -->
+    <ContractsVersion>1.0.0</ContractsVersion>
+  </PropertyGroup>
+</Project>

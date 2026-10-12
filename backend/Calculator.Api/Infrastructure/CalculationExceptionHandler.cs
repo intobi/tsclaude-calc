@@ -1,5 +1,5 @@
 using Calculator.Api.Dtos;
-using Calculator.Services.Exceptions;
+using Calculator.Contracts.Calculations;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Calculator.Api.Infrastructure;

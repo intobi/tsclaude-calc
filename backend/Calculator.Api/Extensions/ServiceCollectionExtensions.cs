@@ -2,7 +2,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Calculator.Api.Dtos;
 using Calculator.Api.Infrastructure;
-using Calculator.Services.Options;
+using Calculator.Contracts.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

@@ -1,6 +1,6 @@
 using Calculator.Api.Dtos;
 using Calculator.Api.Extensions;
-using Calculator.Services.Calculations;
+using Calculator.Contracts.Calculations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

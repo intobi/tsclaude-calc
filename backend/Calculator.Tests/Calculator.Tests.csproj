@@ -25,4 +25,6 @@
     <ProjectReference Include="..\Calculator.Services\Calculator.Services.csproj" />
   </ItemGroup>
 
+  <Import Project="..\build\ContractsReference.props" />
+
 </Project>

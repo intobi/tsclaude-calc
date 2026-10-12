@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Calculator.Data.Entities;
-using Calculator.Services.Options;
+using Calculator.Contracts.Persistence;
+using Calculator.Contracts.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,14 +12,14 @@ internal class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timePr
 {
     private readonly JwtOptions _options = jwtOptions.Value;
 
-    public (string Token, DateTime ExpiresAtUtc) CreateToken(ApplicationUser user)
+    public (string Token, DateTime ExpiresAtUtc) CreateToken(UserAccount user)
     {
         var expiresAtUtc = timeProvider.GetUtcNow().UtcDateTime.AddMinutes(_options.ExpiryMinutes);
 
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

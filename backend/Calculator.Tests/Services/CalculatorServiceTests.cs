@@ -1,5 +1,5 @@
+using Calculator.Contracts.Calculations;
 using Calculator.Services.Calculations;
-using Calculator.Services.Exceptions;
 using Calculator.Tests.Fakes;
 
 namespace Calculator.Tests.Services;

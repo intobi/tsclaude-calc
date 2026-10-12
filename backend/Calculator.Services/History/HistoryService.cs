@@ -1,5 +1,5 @@
-using Calculator.Data.Repositories;
-using Calculator.Services.Models;
+using Calculator.Contracts.History;
+using Calculator.Contracts.Persistence;
 
 namespace Calculator.Services.History;
 

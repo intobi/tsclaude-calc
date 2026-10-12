@@ -11,4 +11,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
   </ItemGroup>
 
+
+  <Import Project="..\build\ContractsReference.props" />
+
 </Project>

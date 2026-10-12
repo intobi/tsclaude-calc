@@ -1,4 +1,5 @@
-using Calculator.Data.Entities;
+using Calculator.Contracts.History;
+using Calculator.Contracts.Persistence;
 using Calculator.Services.History;
 using Calculator.Tests.Fakes;
 
@@ -15,15 +16,14 @@ public class HistoryServiceTests
     }
 
     private async Task AddLogAsync(string userId, double result) =>
-        await _repository.AddAsync(new UserCalcLog
-        {
-            UserId = userId,
-            Operation = "add",
-            OperandA = result,
-            OperandB = 0,
-            Result = result,
-            CreatedAtUtc = new DateTime(2026, 10, 9, 12, 0, 0, DateTimeKind.Unspecified),
-        });
+        await _repository.AddAsync(new CalculationLog(
+            Id: 0,
+            UserId: userId,
+            Operation: "add",
+            OperandA: result,
+            OperandB: 0,
+            Result: result,
+            CreatedAtUtc: new DateTime(2026, 10, 9, 12, 0, 0, DateTimeKind.Unspecified)));
 
     [Fact]
     public async Task GetLatestAsync_ReturnsOnlyTheUsersItemsNewestFirst()

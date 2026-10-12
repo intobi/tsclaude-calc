@@ -13,7 +13,8 @@ Always follow established best practices; do not take shortcuts.
 - Format with Prettier (it also sorts Tailwind classes) and keep unit tests passing (`npx ng test --watch=false`); update tests when behavior changes.
 
 ## Backend (.NET)
-- Layers are separate projects: `Calculator.Api` (controllers, request/response DTOs) → `Calculator.Services` (business logic) → `Calculator.Data` (EF Core entities, `AppDbContext`, repositories, migrations).
-- Controllers only call service interfaces; services only reach the database through repository interfaces. Never inject `AppDbContext` outside `Calculator.Data`.
+- Interfaces and shared models live in `Calculator.Contracts` (no implementations, no third-party dependencies, XML docs on public types). It is versioned via `ContractsVersion` in `backend/Directory.Build.props` and packable as NuGet.
+- `Calculator.Services` (business logic) and `Calculator.Data` (EF Core entities, `AppDbContext`, repositories, migrations) implement the contracts and must never reference each other; `LayerDependencyTests` enforce this.
+- `Calculator.Api` controllers code against contract interfaces only; implementations are referenced solely for DI registration in `Program.cs`. Never inject `AppDbContext` outside `Calculator.Data`, and never expose EF entities outside it.
 - Everything is registered through dependency injection via each layer's `DependencyInjection` extension (`AddDataLayer`, `AddApplicationServices`); keep `Program.cs` as a thin composition root.
-- Validate input, return proper HTTP status codes, and cover services and repositories with tests in `Calculator.Tests` (`dotnet test backend/Calculator.slnx`).
+- Validate input, return proper HTTP status codes, and cover services, repositories and API behaviour with tests in `Calculator.Tests` (`dotnet test backend/Calculator.slnx`).

@@ -1,20 +1,22 @@
-using Calculator.Data.Entities;
-using Calculator.Services.Models;
-using Microsoft.AspNetCore.Identity;
+using Calculator.Contracts.Auth;
+using Calculator.Contracts.Persistence;
 
 namespace Calculator.Services.Auth;
 
-internal class AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService) : IAuthService
+internal class AuthService(IUserRepository userRepository, ITokenService tokenService) : IAuthService
 {
-    public async Task<AuthResult?> LoginAsync(string email, string password)
+    public async Task<AuthResult?> LoginAsync(
+        string email,
+        string password,
+        CancellationToken cancellationToken = default)
     {
-        var user = await userManager.FindByEmailAsync(email);
-        if (user is null || !await userManager.CheckPasswordAsync(user, password))
+        var user = await userRepository.FindByCredentialsAsync(email, password, cancellationToken);
+        if (user is null)
         {
             return null;
         }
 
         var (token, expiresAtUtc) = tokenService.CreateToken(user);
-        return new AuthResult(token, user.Email!, expiresAtUtc);
+        return new AuthResult(token, user.Email, expiresAtUtc);
     }
 }

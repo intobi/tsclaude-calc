@@ -1,6 +1,5 @@
-using Calculator.Data.Entities;
-using Calculator.Data.Repositories;
-using Calculator.Services.Exceptions;
+using Calculator.Contracts.Calculations;
+using Calculator.Contracts.Persistence;
 
 namespace Calculator.Services.Calculations;
 
@@ -24,15 +23,14 @@ internal class CalculatorService(IUserCalcLogRepository calcLogRepository, TimeP
         }
 
         await calcLogRepository.AddAsync(
-            new UserCalcLog
-            {
-                UserId = userId,
-                Operation = operation,
-                OperandA = a,
-                OperandB = b,
-                Result = result,
-                CreatedAtUtc = timeProvider.GetUtcNow().UtcDateTime,
-            },
+            new CalculationLog(
+                Id: 0,
+                UserId: userId,
+                Operation: operation,
+                OperandA: a,
+                OperandB: b,
+                Result: result,
+                CreatedAtUtc: timeProvider.GetUtcNow().UtcDateTime),
             cancellationToken);
 
         return result;
