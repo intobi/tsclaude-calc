@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subscription, filter, map } from 'rxjs';
 import {
   OPERATION_SYMBOLS as SYMBOLS,
@@ -32,15 +32,17 @@ interface Key {
   wide?: boolean;
 }
 
-// Tailwind classes per key kind; `data-[pressed=true]` mirrors hover while a keyboard shortcut is held.
+// Outlined keys (operations, backspace); `data-[pressed=true]` mirrors hover while a shortcut is held.
+const OUTLINED_KEY =
+  'border-outline bg-transparent text-outline hover:bg-outline-hover data-[pressed=true]:bg-outline-hover';
+
+// Tailwind classes per key kind.
 const KEY_KIND_CLASSES: Record<KeyKind, string> = {
   digit:
     'border-field-border bg-field-bg text-title hover:bg-field-hover data-[pressed=true]:bg-field-hover',
-  op: 'border-outline bg-transparent text-outline hover:bg-outline-hover data-[pressed=true]:bg-outline-hover',
-  backspace:
-    'border-outline bg-transparent text-outline hover:bg-outline-hover data-[pressed=true]:bg-outline-hover',
-  clear:
-    'border-outline bg-transparent text-base font-semibold text-outline hover:bg-outline-hover data-[pressed=true]:bg-outline-hover',
+  op: OUTLINED_KEY,
+  backspace: OUTLINED_KEY,
+  clear: `${OUTLINED_KEY} text-base font-semibold`,
   eq: 'border-primary bg-primary text-on-primary hover:border-primary-hover hover:bg-primary-hover data-[pressed=true]:border-primary-hover data-[pressed=true]:bg-primary-hover',
 };
 
@@ -103,7 +105,7 @@ const isEditable = (target: EventTarget | null): boolean =>
 
 @Component({
   selector: 'app-calculator',
-  imports: [History],
+  imports: [History, RouterLink],
   templateUrl: './calculator.html',
   host: {
     class: 'flex w-full flex-col items-center gap-6',
@@ -129,6 +131,12 @@ export class Calculator {
   /** The history side is shown on the /history URL (selected from the header menu). */
   protected readonly historyOpen = computed(
     () => this.url().split(/[?#]/)[0] === APP_PATHS.history,
+  );
+  /** Target of the switch above the card: the side that is currently hidden. */
+  protected readonly viewToggle = computed(() =>
+    this.historyOpen()
+      ? { label: 'Калькулятор', path: APP_PATHS.calculator }
+      : { label: 'Історія', path: APP_PATHS.history },
   );
   /** A calculation request is in flight; further input waits for it (Clear cancels it). */
   protected readonly busy = signal(false);

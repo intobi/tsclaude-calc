@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Calculator } from './calculator';
 
@@ -211,5 +211,29 @@ describe('Calculator', () => {
     http.expectOne('/api/calculate').flush({ result: 0.1 + 0.2 });
     fixture.detectChanges();
     expect(display()).toBe('0.3');
+  });
+
+  it('switches between the calculator and the history with the toggle above the card', async () => {
+    const router = TestBed.inject(Router);
+    const toggle = () =>
+      Array.from(root.querySelectorAll<HTMLAnchorElement>('a')).find((a) =>
+        a.textContent!.includes(router.url === '/' ? 'Історія' : 'Калькулятор'),
+      )!;
+
+    expect(toggle().getAttribute('href')).toBe('/history');
+    toggle().click();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    expect(router.url).toBe('/history');
+    expect(root.querySelector('section[aria-label="Калькулятор"]')!.hasAttribute('inert')).toBe(
+      true,
+    );
+    http.match('/api/history').forEach((req) => req.flush([]));
+
+    expect(toggle().getAttribute('href')).toBe('/');
+    toggle().click();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    expect(router.url).toBe('/');
   });
 });

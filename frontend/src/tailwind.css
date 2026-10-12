@@ -49,3 +49,11 @@
     outline-offset: 2px;
   }
 }
+
+/*
+ * Outlined button or link from the design (outline-colored border and text).
+ * Size and spacing (padding, font size, margins) are set where it is used.
+ */
+@utility btn-outline {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-control border border-outline bg-transparent leading-tight font-semibold text-outline no-underline focus-ring transition-colors hover:bg-outline-hover;
+}
