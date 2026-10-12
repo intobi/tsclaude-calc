@@ -1,4 +1,5 @@
 using Calculator.Contracts.Calculations;
+using Calculator.Contracts.Exceptions;
 using Calculator.Contracts.Persistence;
 
 namespace Calculator.Services.Calculations;

@@ -1,3 +1,5 @@
+using Calculator.Contracts.Exceptions;
+
 namespace Calculator.Contracts.Calculations;
 
 /// <summary>Performs calculations for a user and records them in the user's history.</summary>

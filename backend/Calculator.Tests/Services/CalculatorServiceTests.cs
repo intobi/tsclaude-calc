@@ -1,4 +1,4 @@
-using Calculator.Contracts.Calculations;
+using Calculator.Contracts.Exceptions;
 using Calculator.Services.Calculations;
 using Calculator.Tests.Fakes;
 
