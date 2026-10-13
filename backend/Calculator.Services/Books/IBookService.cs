@@ -4,6 +4,7 @@ namespace Calculator.Services.Books;
 
 public interface IBookService
 {
+    /// <summary>All books, most recently added or edited first.</summary>
     Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <returns>The book, or <c>null</c> when it does not exist.</returns>

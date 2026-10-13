@@ -29,6 +29,7 @@ public partial class DtoMapper : IDtoMapper
     public partial LoginResponse ToLoginResponse(AuthResult result);
 
     [MapperIgnoreTarget(nameof(Book.Id))]
+    [MapperIgnoreTarget(nameof(Book.UpdatedAtUtc))]
     public partial Book ToEntity(BookRequest request);
 
     public partial BookResponse ToBookResponse(Book book);

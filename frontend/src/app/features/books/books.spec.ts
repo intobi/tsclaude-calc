@@ -82,7 +82,11 @@ describe('Books', () => {
     fixture.detectChanges();
 
     expect(dialog('book-dialog-title').open).toBe(false);
-    expect(rows().at(-1)).toEqual(['3', 'Ulysses']);
+    expect(rows()).toEqual([
+      ['3', 'Ulysses'],
+      ['1', 'Dune'],
+      ['2', 'Emma'],
+    ]);
   });
 
   it('does not submit a blank name', () => {
@@ -94,19 +98,22 @@ describe('Books', () => {
     expect(dialog('book-dialog-title').textContent).toContain('Enter a book name.');
   });
 
-  it('edits a book with its current name prefilled', () => {
-    click('Edit Dune');
+  it('edits a book with its current name prefilled and moves it to the top', () => {
+    click('Edit Emma');
     const input = dialog('book-dialog-title').querySelector('input')!;
-    expect(input.value).toBe('Dune');
-    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 'Dune'.length]);
+    expect(input.value).toBe('Emma');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 'Emma'.length]);
 
-    typeName('Dune Messiah');
+    typeName('Emma (Jane Austen)');
     submit();
-    const req = http.expectOne({ method: 'PUT', url: '/api/books/1' });
-    req.flush({ id: 1, name: 'Dune Messiah' });
+    const req = http.expectOne({ method: 'PUT', url: '/api/books/2' });
+    req.flush({ id: 2, name: 'Emma (Jane Austen)' });
     fixture.detectChanges();
 
-    expect(rows()[0]).toEqual(['1', 'Dune Messiah']);
+    expect(rows()).toEqual([
+      ['2', 'Emma (Jane Austen)'],
+      ['1', 'Dune'],
+    ]);
   });
 
   it('deletes a book after confirmation', () => {

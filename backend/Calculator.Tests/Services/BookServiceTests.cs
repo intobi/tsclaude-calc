@@ -6,12 +6,15 @@ namespace Calculator.Tests.Services;
 
 public class BookServiceTests
 {
+    private static readonly DateTimeOffset Start = new(2026, 10, 13, 9, 0, 0, TimeSpan.Zero);
+
     private readonly FakeBookRepository _repository = new();
+    private readonly ManualTimeProvider _clock = new(Start);
     private readonly BookService _service;
 
     public BookServiceTests()
     {
-        _service = new BookService(_repository);
+        _service = new BookService(_repository, _clock);
     }
 
     [Fact]
@@ -62,5 +65,31 @@ public class BookServiceTests
     public async Task DeleteAsync_UnknownId_ReturnsFalse()
     {
         Assert.False(await _service.DeleteAsync(42));
+    }
+
+    [Fact]
+    public async Task CreateAndUpdate_StampTheTime()
+    {
+        var book = await _service.CreateAsync(new Book { Name = "Dune" });
+        Assert.Equal(Start.UtcDateTime, book.UpdatedAtUtc);
+
+        _clock.Advance(TimeSpan.FromMinutes(5));
+        var updated = await _service.UpdateAsync(book.Id, new Book { Name = "Dune Messiah" });
+
+        Assert.Equal(Start.UtcDateTime.AddMinutes(5), updated!.UpdatedAtUtc);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_PutsTheLatestAddedOrEditedBookFirst()
+    {
+        var dune = await _service.CreateAsync(new Book { Name = "Dune" });
+        _clock.Advance(TimeSpan.FromMinutes(1));
+        await _service.CreateAsync(new Book { Name = "Emma" });
+        _clock.Advance(TimeSpan.FromMinutes(1));
+        await _service.UpdateAsync(dune.Id, new Book { Name = "Dune (edited)" });
+
+        var books = await _service.GetAllAsync();
+
+        Assert.Equal(["Dune (edited)", "Emma"], books.Select(b => b.Name));
     }
 }

@@ -8,7 +8,8 @@ internal class FakeBookRepository : IBookRepository
     public List<Book> Books { get; } = [];
 
     public Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<Book>>(Books.OrderBy(b => b.Id).ToList());
+        Task.FromResult<IReadOnlyList<Book>>(
+            Books.OrderByDescending(b => b.UpdatedAtUtc).ThenByDescending(b => b.Id).ToList());
 
     public Task<Book?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
         Task.FromResult(Books.FirstOrDefault(b => b.Id == id));

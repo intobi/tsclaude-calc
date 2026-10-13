@@ -4,7 +4,7 @@ namespace Calculator.Data.Repositories;
 
 public interface IBookRepository
 {
-    /// <summary>All books, ordered by id.</summary>
+    /// <summary>All books, most recently added or edited first.</summary>
     Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <returns>The tracked book, or <c>null</c> when it does not exist.</returns>

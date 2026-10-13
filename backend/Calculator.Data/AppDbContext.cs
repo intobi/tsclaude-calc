@@ -26,6 +26,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(book => book.Name)
                 .IsRequired()
                 .HasMaxLength(Book.NameMaxLength);
+            entity.HasIndex(book => book.UpdatedAtUtc);
         });
 
         builder.Entity<ApplicationUser>().HasData(SeedUsers.Users);

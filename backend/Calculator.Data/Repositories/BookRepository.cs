@@ -8,7 +8,8 @@ public class BookRepository(AppDbContext db) : IBookRepository
     public async Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await db.Books
             .AsNoTracking()
-            .OrderBy(book => book.Id)
+            .OrderByDescending(book => book.UpdatedAtUtc)
+            .ThenByDescending(book => book.Id)
             .ToListAsync(cancellationToken);
 
     public Task<Book?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>

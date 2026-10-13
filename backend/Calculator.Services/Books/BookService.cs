@@ -3,7 +3,7 @@ using Calculator.Data.Repositories;
 
 namespace Calculator.Services.Books;
 
-internal class BookService(IBookRepository bookRepository) : IBookService
+internal class BookService(IBookRepository bookRepository, TimeProvider timeProvider) : IBookService
 {
     public Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default) =>
         bookRepository.GetAllAsync(cancellationToken);
@@ -17,6 +17,7 @@ internal class BookService(IBookRepository bookRepository) : IBookService
 
         book.Id = 0;
         book.Name = NormalizeName(book.Name);
+        book.UpdatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
         await bookRepository.AddAsync(book, cancellationToken);
         return book;
     }
@@ -32,6 +33,7 @@ internal class BookService(IBookRepository bookRepository) : IBookService
         }
 
         book.Name = NormalizeName(changes.Name);
+        book.UpdatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
         await bookRepository.UpdateAsync(book, cancellationToken);
         return book;
     }

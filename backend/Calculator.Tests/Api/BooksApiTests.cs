@@ -60,6 +60,26 @@ public sealed class BooksApiTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/books/{book.Id}")).StatusCode);
     }
 
+    [Fact]
+    public async Task GetAll_ListsAddedOrEditedBooksFirst()
+    {
+        await SignInAsync();
+        var dune = await CreateAsync("Dune");
+        await CreateAsync("Emma");
+        Assert.Equal(["Emma", "Dune"], await NamesAsync());
+
+        await _client.PutAsJsonAsync($"/api/books/{dune.Id}", new BookRequest("Dune Messiah"));
+
+        Assert.Equal(["Dune Messiah", "Emma"], await NamesAsync());
+    }
+
+    private async Task<BookResponse> CreateAsync(string name) =>
+        (await (await _client.PostAsJsonAsync("/api/books", new BookRequest(name)))
+            .Content.ReadFromJsonAsync<BookResponse>())!;
+
+    private async Task<List<string>> NamesAsync() =>
+        (await _client.GetFromJsonAsync<List<BookResponse>>("/api/books"))!.Select(b => b.Name).ToList();
+
     [Theory]
     [InlineData("")]
     [InlineData("   ")]

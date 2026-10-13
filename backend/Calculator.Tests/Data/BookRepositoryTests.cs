@@ -43,14 +43,26 @@ public sealed class BookRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsBooksOrderedById()
+    public async Task GetAllAsync_ReturnsMostRecentlyUpdatedFirst()
     {
-        await _repository.AddAsync(new Book { Name = "B" });
-        await _repository.AddAsync(new Book { Name = "A" });
+        var noon = new DateTime(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc);
+        await _repository.AddAsync(new Book { Name = "Older", UpdatedAtUtc = noon });
+        await _repository.AddAsync(new Book { Name = "Newest", UpdatedAtUtc = noon.AddMinutes(10) });
+        await _repository.AddAsync(new Book { Name = "Middle", UpdatedAtUtc = noon.AddMinutes(5) });
 
         var books = await _repository.GetAllAsync();
 
-        Assert.Equal(["B", "A"], books.Select(b => b.Name));
+        Assert.Equal(["Newest", "Middle", "Older"], books.Select(b => b.Name));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_SameTime_NewerIdFirst()
+    {
+        var noon = new DateTime(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc);
+        await _repository.AddAsync(new Book { Name = "First", UpdatedAtUtc = noon });
+        await _repository.AddAsync(new Book { Name = "Second", UpdatedAtUtc = noon });
+
+        Assert.Equal(["Second", "First"], (await _repository.GetAllAsync()).Select(b => b.Name));
     }
 
     [Fact]

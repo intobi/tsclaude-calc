@@ -126,7 +126,12 @@ namespace Calculator.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UpdatedAtUtc");
 
                     b.ToTable("Books");
                 });

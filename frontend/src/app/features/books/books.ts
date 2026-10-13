@@ -87,9 +87,8 @@ export class Books {
     this.dialogError.set('');
     save$.subscribe({
       next: (saved) => {
-        this.books.update((books) =>
-          editing ? books.map((b) => (b.id === saved.id ? saved : b)) : [...books, saved],
-        );
+        // Same order as the API: the book just added or edited goes to the top.
+        this.books.update((books) => [saved, ...books.filter((b) => b.id !== saved.id)]);
         this.saving.set(false);
         this.bookDialog().nativeElement.close();
       },
