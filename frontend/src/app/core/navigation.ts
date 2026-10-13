@@ -2,5 +2,6 @@
 export const APP_PATHS = {
   calculator: '/',
   history: '/history',
+  books: '/books',
   login: '/login',
 } as const;

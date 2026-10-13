@@ -7,6 +7,7 @@ namespace Calculator.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<UserCalcLog> UserCalcLogs => Set<UserCalcLog>();
+    public DbSet<Book> Books => Set<Book>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -18,6 +19,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 .WithMany()
                 .HasForeignKey(log => log.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Book>(entity =>
+        {
+            entity.Property(book => book.Name)
+                .IsRequired()
+                .HasMaxLength(Book.NameMaxLength);
         });
 
         builder.Entity<ApplicationUser>().HasData(SeedUsers.Users);

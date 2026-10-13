@@ -16,6 +16,14 @@ dotnet test backend/Calculator.slnx
 cd frontend && npx ng test --watch=false
 ```
 
+## Database migrations
+`dotnet-ef` is a local tool pinned in `backend/dotnet-tools.json`. Migrations are applied automatically on startup.
+```
+cd backend
+dotnet tool restore
+dotnet dotnet-ef migrations add <Name> --project Calculator.Data --startup-project Calculator.Api
+```
+
 ## Backend layout
 | Project | Responsibility |
 |---|---|

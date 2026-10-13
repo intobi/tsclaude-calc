@@ -30,6 +30,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserCalcLogRepository, UserCalcLogRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IBookRepository, BookRepository>();
 
         return services;
     }

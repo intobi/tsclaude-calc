@@ -57,3 +57,13 @@
 @utility btn-outline {
   @apply inline-flex cursor-pointer items-center gap-2 rounded-control border border-outline bg-transparent leading-tight font-semibold text-outline no-underline focus-ring transition-colors hover:bg-outline-hover;
 }
+
+/* Filled primary (call-to-action) button. Size and spacing are set where it is used. */
+@utility btn-primary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-primary leading-tight font-semibold text-on-primary focus-ring transition-colors not-disabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+/* Outlined button for destructive actions (delete). Size and spacing are set where it is used. */
+@utility btn-danger {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-control border border-error bg-transparent leading-tight font-semibold text-error focus-ring transition-colors hover:bg-error/10 disabled:cursor-not-allowed disabled:opacity-60;
+}

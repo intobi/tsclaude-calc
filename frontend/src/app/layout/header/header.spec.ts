@@ -45,7 +45,7 @@ describe('Header', () => {
       await render();
     });
 
-    it('links to the calculator and the history', () => {
+    it('links to the calculator, the history and the books', () => {
       const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('nav a')).map((a) => [
         a.textContent!.trim(),
         a.getAttribute('href'),
@@ -53,6 +53,7 @@ describe('Header', () => {
       expect(links).toEqual([
         ['Калькулятор', '/'],
         ['Історія', '/history'],
+        ['Books', '/books'],
       ]);
     });
 

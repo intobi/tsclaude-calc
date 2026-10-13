@@ -1,4 +1,5 @@
 using Calculator.Api.Mapping;
+using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Data.Entities;
 using Calculator.Services.Models;
@@ -59,5 +60,21 @@ public class DtoMapperTests
         var response = _mapper.ToLoginResponse(new AuthResult("token", "user@example.com", expires));
 
         Assert.Equal(("token", "user@example.com", expires), (response.Token, response.Email, response.ExpiresAtUtc));
+    }
+
+    [Fact]
+    public void ToEntity_Book_TakesTheNameAndLeavesIdUnset()
+    {
+        var book = _mapper.ToEntity(new BookRequest("Dune"));
+
+        Assert.Equal((0, "Dune"), (book.Id, book.Name));
+    }
+
+    [Fact]
+    public void ToBooks_MapsEveryBook()
+    {
+        var books = _mapper.ToBooks([new Book { Id = 1, Name = "Dune" }, new Book { Id = 2, Name = "Emma" }]);
+
+        Assert.Equal([new BookResponse(1, "Dune"), new BookResponse(2, "Emma")], books);
     }
 }

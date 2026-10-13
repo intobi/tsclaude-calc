@@ -7,6 +7,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
+    path: 'books',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/books/books').then((m) => m.Books),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/calculator/calculator').then((m) => m.Calculator),

@@ -1,4 +1,5 @@
 using Calculator.Contracts.Auth;
+using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Contracts.History;
 using Calculator.Data.Entities;
@@ -26,6 +27,13 @@ public partial class DtoMapper : IDtoMapper
     public partial IReadOnlyList<HistoryItemResponse> ToHistory(IReadOnlyList<UserCalcLog> calculations);
 
     public partial LoginResponse ToLoginResponse(AuthResult result);
+
+    [MapperIgnoreTarget(nameof(Book.Id))]
+    public partial Book ToEntity(BookRequest request);
+
+    public partial BookResponse ToBookResponse(Book book);
+
+    public partial IReadOnlyList<BookResponse> ToBooks(IReadOnlyList<Book> books);
 
     /// <summary>SQLite does not keep <see cref="DateTimeKind"/>; all stored times are UTC, so mark them as such.</summary>
     [UserMapping(Default = true)]

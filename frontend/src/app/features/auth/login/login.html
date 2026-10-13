@@ -21,11 +21,7 @@
   @if (error()) {
     <div class="text-sm text-error" role="alert">{{ error() }}</div>
   }
-  <button
-    type="submit"
-    class="cursor-pointer self-start rounded-control border-0 bg-primary px-6 py-3 leading-tight font-semibold text-on-primary focus-ring transition-colors not-disabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-    [disabled]="loading()"
-  >
+  <button type="submit" class="btn-primary self-start px-6 py-3" [disabled]="loading()">
     {{ loading() ? 'Вхід...' : 'Увійти' }}
   </button>
 </form>

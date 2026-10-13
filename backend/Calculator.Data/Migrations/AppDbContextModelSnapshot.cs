@@ -115,6 +115,22 @@ namespace Calculator.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Calculator.Data.Entities.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Books");
+                });
+
             modelBuilder.Entity("Calculator.Data.Entities.UserCalcLog", b =>
                 {
                     b.Property<int>("Id")

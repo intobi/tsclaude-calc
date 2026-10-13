@@ -1,4 +1,5 @@
 using Calculator.Contracts.Auth;
+using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Contracts.History;
 using Calculator.Data.Entities;
@@ -19,4 +20,11 @@ public interface IDtoMapper
     IReadOnlyList<HistoryItemResponse> ToHistory(IReadOnlyList<UserCalcLog> calculations);
 
     LoginResponse ToLoginResponse(AuthResult result);
+
+    /// <summary>A book entered in the dialog (the id comes from the URL or the database).</summary>
+    Book ToEntity(BookRequest request);
+
+    BookResponse ToBookResponse(Book book);
+
+    IReadOnlyList<BookResponse> ToBooks(IReadOnlyList<Book> books);
 }
