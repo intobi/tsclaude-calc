@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
+  <!--
+    INTOBI logo mark (the two shapes of public/intobi-logo.svg, same colours) on a tile in the design's
+    title colour #141B27. Gradient opacities are doubled so the mark stays readable at 16px.
+  -->
+  <rect width="48" height="48" rx="11" fill="#141B27"/>
+  <g transform="translate(7.5 11.2) scale(0.8)">
+    <path d="M27.4594 6.99237L0 0V18.1069C0 25.771 6.15572 32 13.7297 32C21.3036 32 27.4594 25.8015 27.4594 18.1069V6.99237Z" fill="url(#mark-a)"/>
+    <path d="M13.7288 25.0076L41.1881 32V13.8931C41.1881 6.22901 35.0324 0 27.4584 0C19.8845 0 13.7288 6.19847 13.7288 13.8931V25.0076Z" fill="url(#mark-b)"/>
+  </g>
+  <defs>
+    <linearGradient id="mark-a" x1="14.6459" y1="5.23169" x2="6.87152" y2="42.8012" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B73FA" stop-opacity="0"/>
+      <stop offset="0.306" stop-color="#2B73FA" stop-opacity="0.21"/>
+      <stop offset="0.5495" stop-color="#558FFB" stop-opacity="0.63"/>
+      <stop offset="0.7584" stop-color="#99BCFD"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="mark-b" x1="26.5422" y1="26.7683" x2="34.3166" y2="-10.8012" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B73FA" stop-opacity="0"/>
+      <stop offset="0.306" stop-color="#2B73FA" stop-opacity="0.21"/>
+      <stop offset="0.5495" stop-color="#558FFB" stop-opacity="0.63"/>
+      <stop offset="0.7584" stop-color="#99BCFD"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+</svg>
