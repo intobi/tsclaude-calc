@@ -1,4 +1,5 @@
 using Calculator.Services.Auth;
+using Calculator.Services.Authors;
 using Calculator.Services.Books;
 using Calculator.Services.Calculations;
 using Calculator.Services.History;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<ICalculatorService, CalculatorService>();
         services.AddScoped<IHistoryService, HistoryService>();
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<IAuthorService, AuthorService>();
 
         return services;
     }

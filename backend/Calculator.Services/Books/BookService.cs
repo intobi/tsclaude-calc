@@ -1,9 +1,13 @@
 using Calculator.Data.Entities;
 using Calculator.Data.Repositories;
+using Calculator.Services.Exceptions;
 
 namespace Calculator.Services.Books;
 
-internal class BookService(IBookRepository bookRepository, TimeProvider timeProvider) : IBookService
+internal class BookService(
+    IBookRepository bookRepository,
+    IAuthorRepository authorRepository,
+    TimeProvider timeProvider) : IBookService
 {
     public Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default) =>
         bookRepository.GetAllAsync(cancellationToken);
@@ -17,6 +21,7 @@ internal class BookService(IBookRepository bookRepository, TimeProvider timeProv
 
         book.Id = 0;
         book.Name = NormalizeName(book.Name);
+        book.Author = await GetAuthorAsync(book.AuthorId, cancellationToken);
         book.UpdatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
         await bookRepository.AddAsync(book, cancellationToken);
         return book;
@@ -32,7 +37,11 @@ internal class BookService(IBookRepository bookRepository, TimeProvider timeProv
             return null;
         }
 
-        book.Name = NormalizeName(changes.Name);
+        var name = NormalizeName(changes.Name);
+        var author = await GetAuthorAsync(changes.AuthorId, cancellationToken);
+        book.Name = name;
+        book.Author = author;
+        book.AuthorId = author.Id;
         book.UpdatedAtUtc = timeProvider.GetUtcNow().UtcDateTime;
         await bookRepository.UpdateAsync(book, cancellationToken);
         return book;
@@ -49,6 +58,10 @@ internal class BookService(IBookRepository bookRepository, TimeProvider timeProv
         await bookRepository.DeleteAsync(book, cancellationToken);
         return true;
     }
+
+    private async Task<Author> GetAuthorAsync(int authorId, CancellationToken cancellationToken) =>
+        await authorRepository.GetByIdAsync(authorId, cancellationToken)
+            ?? throw new UnknownAuthorException(authorId);
 
     private static string NormalizeName(string name)
     {

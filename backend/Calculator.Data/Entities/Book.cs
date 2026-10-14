@@ -8,6 +8,10 @@ public class Book
     public int Id { get; set; }
     public string Name { get; set; } = null!;
 
+    /// <summary>Every book has an author; an author with books cannot be deleted.</summary>
+    public int AuthorId { get; set; }
+    public Author Author { get; set; } = null!;
+
     /// <summary>When the book was added or last edited (UTC); the newest come first.</summary>
     public DateTime UpdatedAtUtc { get; set; }
 }

@@ -10,11 +10,13 @@ public interface IBookService
     /// <returns>The book, or <c>null</c> when it does not exist.</returns>
     Task<Book?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    /// <summary>Saves a new book and returns it with its generated id.</summary>
+    /// <summary>Saves a new book and returns it with its generated id and its author.</summary>
+    /// <exception cref="Exceptions.UnknownAuthorException">The author does not exist.</exception>
     Task<Book> CreateAsync(Book book, CancellationToken cancellationToken = default);
 
     /// <summary>Copies the editable fields of <paramref name="changes"/> onto the book with <paramref name="id"/>.</summary>
     /// <returns>The updated book, or <c>null</c> when it does not exist.</returns>
+    /// <exception cref="Exceptions.UnknownAuthorException">The author does not exist.</exception>
     Task<Book?> UpdateAsync(int id, Book changes, CancellationToken cancellationToken = default);
 
     /// <returns><c>false</c> when the book does not exist.</returns>

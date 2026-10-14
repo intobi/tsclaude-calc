@@ -8,6 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 {
     public DbSet<UserCalcLog> UserCalcLogs => Set<UserCalcLog>();
     public DbSet<Book> Books => Set<Book>();
+    public DbSet<Author> Authors => Set<Author>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,6 +28,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 .IsRequired()
                 .HasMaxLength(Book.NameMaxLength);
             entity.HasIndex(book => book.UpdatedAtUtc);
+            entity.HasOne(book => book.Author)
+                .WithMany()
+                .HasForeignKey(book => book.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Author>(entity =>
+        {
+            entity.Property(author => author.FirstName)
+                .IsRequired()
+                .HasMaxLength(Author.NameMaxLength);
+            entity.Property(author => author.LastName)
+                .IsRequired()
+                .HasMaxLength(Author.NameMaxLength);
+            entity.Property(author => author.Gender)
+                .HasConversion<string>()
+                .HasMaxLength(16);
         });
 
         builder.Entity<ApplicationUser>().HasData(SeedUsers.Users);

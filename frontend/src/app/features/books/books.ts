@@ -1,41 +1,35 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { notBlank } from '../../core/forms/not-blank.validator';
+import { apiErrorMessage } from '../../core/http/api-error';
+import { APP_PATHS } from '../../core/navigation';
+import { Author, authorFullName } from '../authors/author.models';
+import { AuthorsApi } from '../authors/authors-api';
 import { BOOK_NAME_MAX_LENGTH, Book } from './book.models';
 import { BooksApi } from './books-api';
 
-/** Rejects names made only of whitespace (the backend does the same). */
-const notBlank = (control: AbstractControl<string>): ValidationErrors | null =>
-  control.value.trim() ? null : { blank: true };
-
-/** The API's own message: `{ error }` for business errors, `{ errors }` for validation problems. */
-function apiErrorMessage(response: HttpErrorResponse, fallback: string): string {
-  const body = response.error;
-  const validation = body?.errors ? Object.values<string[]>(body.errors)[0]?.[0] : undefined;
-  return body?.error ?? validation ?? fallback;
-}
-
 @Component({
   selector: 'app-books',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './books.html',
   host: { class: 'flex w-full flex-col items-center gap-6' },
 })
 export class Books {
   private readonly booksApi = inject(BooksApi);
+  private readonly authorsApi = inject(AuthorsApi);
   private readonly bookDialog = viewChild.required<ElementRef<HTMLDialogElement>>('bookDialog');
   private readonly deleteDialog = viewChild.required<ElementRef<HTMLDialogElement>>('deleteDialog');
   private readonly nameInput = viewChild.required<ElementRef<HTMLInputElement>>('nameInput');
 
   protected readonly nameMaxLength = BOOK_NAME_MAX_LENGTH;
+  protected readonly authorsPath = APP_PATHS.authors;
+  protected readonly fullName = authorFullName;
   protected readonly books = signal<Book[]>([]);
+  /** Options of the author dropdown. */
+  protected readonly authors = signal<Author[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal('');
   /** The book being edited in the dialog; `null` while adding a new one. */
@@ -48,13 +42,17 @@ export class Books {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(BOOK_NAME_MAX_LENGTH), notBlank],
     }),
+    // null shows the "Select author" placeholder until an author is chosen.
+    authorId: new FormControl<number | null>(null, Validators.required),
   });
   protected readonly name = this.form.controls.name;
+  protected readonly authorId = this.form.controls.authorId;
 
   constructor() {
-    this.booksApi.getAll().subscribe({
-      next: (books) => {
+    forkJoin({ books: this.booksApi.getAll(), authors: this.authorsApi.getAll() }).subscribe({
+      next: ({ books, authors }) => {
         this.books.set(books);
+        this.authors.set(authors);
         this.loading.set(false);
       },
       error: (e: HttpErrorResponse) => {
@@ -73,12 +71,13 @@ export class Books {
   }
 
   protected save() {
-    if (this.form.invalid || this.saving()) {
+    const authorId = this.authorId.value;
+    if (this.form.invalid || authorId === null || this.saving()) {
       this.form.markAllAsTouched();
       return;
     }
     const editing = this.editing();
-    const request = { name: this.name.value.trim() };
+    const request = { name: this.name.value.trim(), authorId };
     const save$ = editing
       ? this.booksApi.update(editing.id, request)
       : this.booksApi.create(request);
@@ -131,7 +130,7 @@ export class Books {
   private openBookDialog(book: Book | null) {
     this.editing.set(book);
     this.dialogError.set('');
-    this.form.reset({ name: book?.name ?? '' });
+    this.form.reset({ name: book?.name ?? '', authorId: book?.author.id ?? null });
     this.bookDialog().nativeElement.showModal();
     // When editing, typing replaces the current name instead of appending to it.
     this.nameInput().nativeElement.select();

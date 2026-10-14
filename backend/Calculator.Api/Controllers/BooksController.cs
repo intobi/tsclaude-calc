@@ -25,6 +25,7 @@ public class BooksController(IBookService bookService, IDtoMapper mapper) : Cont
         return book is null ? NotFound() : Ok(mapper.ToBookResponse(book));
     }
 
+    /// <remarks>An unknown author gets 400 from <see cref="Infrastructure.LibraryExceptionHandler"/>.</remarks>
     [HttpPost]
     public async Task<ActionResult<BookResponse>> Create(BookRequest request, CancellationToken cancellationToken)
     {

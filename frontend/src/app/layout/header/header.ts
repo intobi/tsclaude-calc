@@ -17,6 +17,7 @@ const NAV_LINKS: NavLink[] = [
   { label: 'Калькулятор', path: APP_PATHS.calculator },
   { label: 'Історія', path: APP_PATHS.history },
   { label: 'Books', path: APP_PATHS.books },
+  { label: 'Authors', path: APP_PATHS.authors },
 ];
 
 /** Burger icon lines; when the menu is open they morph into a cross. */

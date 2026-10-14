@@ -1,4 +1,5 @@
 using Calculator.Contracts.Auth;
+using Calculator.Contracts.Authors;
 using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Contracts.History;
@@ -27,4 +28,11 @@ public interface IDtoMapper
     BookResponse ToBookResponse(Book book);
 
     IReadOnlyList<BookResponse> ToBooks(IReadOnlyList<Book> books);
+
+    /// <summary>An author entered in the dialog (the id comes from the URL or the database).</summary>
+    Author ToEntity(AuthorRequest request);
+
+    AuthorResponse ToAuthorResponse(Author author);
+
+    IReadOnlyList<AuthorResponse> ToAuthors(IReadOnlyList<Author> authors);
 }

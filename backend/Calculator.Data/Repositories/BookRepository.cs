@@ -8,12 +8,13 @@ public class BookRepository(AppDbContext db) : IBookRepository
     public async Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await db.Books
             .AsNoTracking()
+            .Include(book => book.Author)
             .OrderByDescending(book => book.UpdatedAtUtc)
             .ThenByDescending(book => book.Id)
             .ToListAsync(cancellationToken);
 
     public Task<Book?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
-        db.Books.FirstOrDefaultAsync(book => book.Id == id, cancellationToken);
+        db.Books.Include(book => book.Author).FirstOrDefaultAsync(book => book.Id == id, cancellationToken);
 
     public async Task AddAsync(Book book, CancellationToken cancellationToken = default)
     {

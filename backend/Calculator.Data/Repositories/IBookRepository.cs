@@ -4,10 +4,10 @@ namespace Calculator.Data.Repositories;
 
 public interface IBookRepository
 {
-    /// <summary>All books, most recently added or edited first.</summary>
+    /// <summary>All books with their authors, most recently added or edited first.</summary>
     Task<IReadOnlyList<Book>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    /// <returns>The tracked book, or <c>null</c> when it does not exist.</returns>
+    /// <returns>The tracked book with its author, or <c>null</c> when it does not exist.</returns>
     Task<Book?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     Task AddAsync(Book book, CancellationToken cancellationToken = default);

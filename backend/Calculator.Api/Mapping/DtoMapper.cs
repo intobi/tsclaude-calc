@@ -1,4 +1,5 @@
 using Calculator.Contracts.Auth;
+using Calculator.Contracts.Authors;
 using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Contracts.History;
@@ -9,7 +10,7 @@ using Riok.Mapperly.Abstractions;
 namespace Calculator.Api.Mapping;
 
 /// <summary>Mapperly implementation of <see cref="IDtoMapper"/>; the method bodies are generated at compile time.</summary>
-[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target, EnumMappingStrategy = EnumMappingStrategy.ByName)]
 public partial class DtoMapper : IDtoMapper
 {
     [MapProperty(nameof(CalculationRequest.A), nameof(UserCalcLog.OperandA))]
@@ -30,11 +31,19 @@ public partial class DtoMapper : IDtoMapper
 
     [MapperIgnoreTarget(nameof(Book.Id))]
     [MapperIgnoreTarget(nameof(Book.UpdatedAtUtc))]
+    [MapperIgnoreTarget(nameof(Book.Author))]
     public partial Book ToEntity(BookRequest request);
 
     public partial BookResponse ToBookResponse(Book book);
 
     public partial IReadOnlyList<BookResponse> ToBooks(IReadOnlyList<Book> books);
+
+    [MapperIgnoreTarget(nameof(Author.Id))]
+    public partial Author ToEntity(AuthorRequest request);
+
+    public partial AuthorResponse ToAuthorResponse(Author author);
+
+    public partial IReadOnlyList<AuthorResponse> ToAuthors(IReadOnlyList<Author> authors);
 
     /// <summary>SQLite does not keep <see cref="DateTimeKind"/>; all stored times are UTC, so mark them as such.</summary>
     [UserMapping(Default = true)]

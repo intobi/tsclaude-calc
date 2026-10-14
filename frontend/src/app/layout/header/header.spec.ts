@@ -45,7 +45,7 @@ describe('Header', () => {
       await render();
     });
 
-    it('links to the calculator, the history and the books', () => {
+    it('links to the calculator, the history, the books and the authors', () => {
       const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('nav a')).map((a) => [
         a.textContent!.trim(),
         a.getAttribute('href'),
@@ -54,6 +54,7 @@ describe('Header', () => {
         ['Калькулятор', '/'],
         ['Історія', '/history'],
         ['Books', '/books'],
+        ['Authors', '/authors'],
       ]);
     });
 

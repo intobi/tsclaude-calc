@@ -1,8 +1,11 @@
 using Calculator.Api.Mapping;
+using Calculator.Contracts.Authors;
 using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
 using Calculator.Data.Entities;
 using Calculator.Services.Models;
+using DtoGender = Calculator.Contracts.Authors.Gender;
+using EntityGender = Calculator.Data.Entities.Gender;
 
 namespace Calculator.Tests.Api;
 
@@ -62,19 +65,40 @@ public class DtoMapperTests
         Assert.Equal(("token", "user@example.com", expires), (response.Token, response.Email, response.ExpiresAtUtc));
     }
 
-    [Fact]
-    public void ToEntity_Book_TakesTheNameAndLeavesIdUnset()
-    {
-        var book = _mapper.ToEntity(new BookRequest("Dune"));
+    private static readonly Author Herbert = new() { Id = 7, FirstName = "Frank", LastName = "Herbert", Gender = EntityGender.Male };
+    private static readonly AuthorResponse HerbertResponse = new(7, "Frank", "Herbert", DtoGender.Male);
 
-        Assert.Equal((0, "Dune"), (book.Id, book.Name));
+    [Fact]
+    public void ToEntity_Book_TakesTheNameAndAuthorIdAndLeavesIdUnset()
+    {
+        var book = _mapper.ToEntity(new BookRequest("Dune", 7));
+
+        Assert.Equal((0, "Dune", 7), (book.Id, book.Name, book.AuthorId));
     }
 
     [Fact]
-    public void ToBooks_MapsEveryBook()
+    public void ToBooks_MapsEveryBookWithItsAuthor()
     {
-        var books = _mapper.ToBooks([new Book { Id = 1, Name = "Dune" }, new Book { Id = 2, Name = "Emma" }]);
+        var books = _mapper.ToBooks([
+            new Book { Id = 1, Name = "Dune", AuthorId = 7, Author = Herbert },
+            new Book { Id = 2, Name = "Dune Messiah", AuthorId = 7, Author = Herbert },
+        ]);
 
-        Assert.Equal([new BookResponse(1, "Dune"), new BookResponse(2, "Emma")], books);
+        Assert.Equal([new BookResponse(1, "Dune", HerbertResponse), new BookResponse(2, "Dune Messiah", HerbertResponse)], books);
+    }
+
+    [Fact]
+    public void ToEntity_Author_TakesEveryFieldAndLeavesIdUnset()
+    {
+        var author = _mapper.ToEntity(new AuthorRequest("Jane", "Austen", DtoGender.Female));
+
+        Assert.Equal((0, "Jane", "Austen", EntityGender.Female),
+            (author.Id, author.FirstName, author.LastName, author.Gender));
+    }
+
+    [Fact]
+    public void ToAuthors_MapsEveryAuthor()
+    {
+        Assert.Equal([HerbertResponse], _mapper.ToAuthors([Herbert]));
     }
 }

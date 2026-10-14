@@ -25,6 +25,7 @@
           <tr class="border-b border-border text-sm text-muted">
             <th scope="col" class="w-16 py-3 pr-4 font-medium">Id</th>
             <th scope="col" class="py-3 pr-4 font-medium">Name</th>
+            <th scope="col" class="py-3 pr-4 font-medium">Author</th>
             <th scope="col" class="py-3 text-right font-medium">Actions</th>
           </tr>
         </thead>
@@ -33,6 +34,7 @@
             <tr class="border-b border-border last:border-b-0">
               <td class="py-3 pr-4 text-muted tabular-nums">{{ book.id }}</td>
               <td class="py-3 pr-4 wrap-anywhere text-title">{{ book.name }}</td>
+              <td class="py-3 pr-4 wrap-anywhere text-title">{{ fullName(book.author) }}</td>
               <td class="py-3">
                 <div class="flex justify-end gap-2">
                   <button
@@ -90,6 +92,31 @@
         Enter a book name.
       } @else if (name.hasError('maxlength')) {
         The name can be at most {{ nameMaxLength }} characters.
+      }
+    </div>
+    <label class="flex flex-col gap-2 text-sm text-muted">
+      Author
+      <select
+        class="cursor-pointer rounded-control border border-field-border bg-field-bg px-4 py-3 text-base text-title focus-ring transition-colors hover:bg-field-hover"
+        formControlName="authorId"
+        [attr.aria-invalid]="authorId.invalid && authorId.touched"
+        aria-describedby="book-author-error"
+      >
+        <option [ngValue]="null" disabled>Select author</option>
+        @for (author of authors(); track author.id) {
+          <option [ngValue]="author.id">{{ fullName(author) }}</option>
+        }
+      </select>
+    </label>
+    <div id="book-author-error" class="min-h-5 text-sm text-error" role="alert">
+      @if (authors().length === 0) {
+        No authors yet.
+        <a class="rounded-control text-outline focus-ring" [routerLink]="authorsPath"
+          >Add an author</a
+        >
+        first.
+      } @else if (authorId.touched && authorId.hasError('required')) {
+        Select an author.
       } @else if (dialogError()) {
         {{ dialogError() }}
       }

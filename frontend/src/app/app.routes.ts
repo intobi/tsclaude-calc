@@ -12,6 +12,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/books/books').then((m) => m.Books),
   },
   {
+    path: 'authors',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/authors/authors').then((m) => m.Authors),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/calculator/calculator').then((m) => m.Calculator),

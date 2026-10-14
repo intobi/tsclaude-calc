@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApiErrorHandling(this IServiceCollection services) =>
         services
             .AddExceptionHandler<CalculationExceptionHandler>()
+            .AddExceptionHandler<LibraryExceptionHandler>()
             .AddProblemDetails();
 
     public static IServiceCollection AddLoginRateLimiting(this IServiceCollection services) =>
