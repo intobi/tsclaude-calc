@@ -3,7 +3,7 @@
     <a
       class="flex flex-1 rounded-control focus-ring"
       [routerLink]="paths.calculator"
-      aria-label="Калькулятор — на головну"
+      aria-label="Calculator home"
     >
       <img class="block" src="intobi-logo.svg" alt="" width="151" height="32" />
     </a>
@@ -12,7 +12,7 @@
       <nav
         id="site-nav"
         class="max-nav:absolute max-nav:inset-x-0 max-nav:top-[calc(100%+0.5rem)] max-nav:z-10 max-nav:hidden max-nav:max-h-[calc(100vh-6rem)] max-nav:overflow-y-auto max-nav:rounded-card max-nav:border max-nav:border-border max-nav:bg-surface max-nav:p-4 max-nav:shadow-popover max-nav:data-[open=true]:block"
-        aria-label="Меню калькулятора"
+        aria-label="Calculator menu"
         [attr.data-open]="mobileOpen()"
       >
         <ul class="m-0 list-none p-0 nav:flex nav:items-center nav:gap-6">
@@ -40,7 +40,7 @@
               [attr.aria-expanded]="openMenu() === 'shortcuts'"
               (click)="toggleMenu('shortcuts')"
             >
-              Гарячі клавіші
+              Keyboard shortcuts
               <img
                 class="transition-transform group-aria-expanded:rotate-180"
                 src="chevron-down.svg"
@@ -70,7 +70,7 @@
           <li class="mt-3 border-t border-border pt-3 nav:hidden">
             <p class="m-0 truncate text-sm text-muted">{{ email() }}</p>
             <button type="button" class="mt-3 btn-outline px-5 py-3" (click)="logout()">
-              Вийти
+              Log out
             </button>
           </li>
         </ul>
@@ -104,7 +104,7 @@
               class="w-full cursor-pointer rounded-control border-0 bg-transparent px-3 py-2 text-left text-base text-text focus-ring transition-colors hover:bg-field-bg hover:text-title"
               (click)="logout()"
             >
-              Вийти
+              Log out
             </button>
           </li>
         </ul>
@@ -114,7 +114,7 @@
         type="button"
         class="group flex size-12 cursor-pointer flex-col justify-center gap-1.25 rounded-control border-0 bg-field-bg px-3 focus-ring nav:hidden"
         aria-controls="site-nav"
-        aria-label="Меню"
+        aria-label="Menu"
         [attr.aria-expanded]="mobileOpen()"
         (click)="toggleMobile()"
       >
@@ -126,7 +126,7 @@
         }
       </button>
     } @else {
-      <a class="btn-outline px-5 py-3.5 whitespace-nowrap" [routerLink]="paths.login"> Увійти </a>
+      <a class="btn-outline px-5 py-3.5 whitespace-nowrap" [routerLink]="paths.login"> Sign in </a>
     }
   </div>
 </header>

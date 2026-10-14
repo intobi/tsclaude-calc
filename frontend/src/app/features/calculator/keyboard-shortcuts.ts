@@ -5,10 +5,10 @@ export interface KeyboardShortcut {
 
 /** Human-readable cheat sheet of the calculator's keyboard shortcuts (shown in the header menu). */
 export const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
-  { keys: ['0–9'], action: 'Цифри' },
-  { keys: ['.', ','], action: 'Десяткова крапка' },
-  { keys: ['+', '-', '*', '/'], action: 'Операції' },
-  { keys: ['Enter', '='], action: 'Дорівнює' },
-  { keys: ['Backspace'], action: 'Стерти символ' },
-  { keys: ['Esc', 'Delete', 'C'], action: 'Очистити' },
+  { keys: ['0–9'], action: 'Digits' },
+  { keys: ['.', ','], action: 'Decimal point' },
+  { keys: ['+', '-', '*', '/'], action: 'Operations' },
+  { keys: ['Enter', '='], action: 'Equals' },
+  { keys: ['Backspace'], action: 'Delete last character' },
+  { keys: ['Esc', 'Delete', 'C'], action: 'Clear' },
 ];

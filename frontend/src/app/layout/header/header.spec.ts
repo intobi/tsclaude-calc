@@ -40,7 +40,7 @@ describe('Header', () => {
   it('shows only the sign-in link when signed out', async () => {
     await render();
     expect(root.querySelector('nav')).toBeNull();
-    expect(root.querySelector('a[href="/login"]')!.textContent!.trim()).toBe('Увійти');
+    expect(root.querySelector('a[href="/login"]')!.textContent!.trim()).toBe('Sign in');
   });
 
   describe('when signed in', () => {
@@ -55,11 +55,12 @@ describe('Header', () => {
         a.getAttribute('href'),
       ]);
 
-    it('has one calculator/history switch, then the books and the authors', () => {
+    it('has one calculator/history switch, then the books, the authors and the orbits', () => {
       expect(links()).toEqual([
-        ['⇄ Історія', '/history'],
+        ['⇄ History', '/history'],
         ['Books', '/books'],
         ['Authors', '/authors'],
+        ['Orbits', '/orbits'],
       ]);
     });
 
@@ -69,23 +70,23 @@ describe('Header', () => {
       for (const url of ['/history', '/books']) {
         await router.navigateByUrl(url);
         detectChanges();
-        expect(links()[0]).toEqual(['⇄ Калькулятор', '/']);
+        expect(links()[0]).toEqual(['⇄ Calculator', '/']);
       }
 
       await router.navigateByUrl('/');
       detectChanges();
-      expect(links()[0]).toEqual(['⇄ Історія', '/history']);
+      expect(links()[0]).toEqual(['⇄ History', '/history']);
     });
 
     it('opens the keyboard shortcuts cheat sheet and closes it with Escape', () => {
       const sheet = root.querySelector<HTMLElement>('#submenu-shortcuts')!;
       expect(sheet.hidden).toBe(true);
 
-      button('Гарячі клавіші').click();
+      button('Keyboard shortcuts').click();
       detectChanges();
       expect(sheet.hidden).toBe(false);
       expect(sheet.textContent).toContain('Backspace');
-      expect(sheet.textContent).toContain('Стерти символ');
+      expect(sheet.textContent).toContain('Delete last character');
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       detectChanges();
@@ -109,7 +110,7 @@ describe('Header', () => {
     });
 
     it('toggles the mobile menu with the burger button', () => {
-      const burger = root.querySelector<HTMLButtonElement>('button[aria-label="Меню"]')!;
+      const burger = root.querySelector<HTMLButtonElement>('button[aria-label="Menu"]')!;
       burger.click();
       detectChanges();
       expect(root.querySelector('nav')!.getAttribute('data-open')).toBe('true');

@@ -42,7 +42,7 @@ export class History {
         this.loading.set(false);
       },
       error: (e) => {
-        this.error.set(e.error?.error ?? 'Не вдалося завантажити історію');
+        this.error.set(e.error?.error ?? 'Could not load history');
         this.loading.set(false);
       },
     });

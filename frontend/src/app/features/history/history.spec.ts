@@ -52,7 +52,7 @@ describe('History', () => {
   it('shows an empty state', () => {
     http.expectOne('/api/history').flush([]);
     fixture.detectChanges();
-    expect(root.querySelector('p')!.textContent!.trim()).toBe('Історія порожня');
+    expect(root.querySelector('p')!.textContent!.trim()).toBe('History is empty');
   });
 
   it('reloads every time it becomes active and never while hidden', () => {

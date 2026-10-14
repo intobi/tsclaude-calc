@@ -9,6 +9,7 @@ export const APP_PATHS = {
   history: '/history',
   books: '/books',
   authors: '/authors',
+  orbits: '/orbits',
   login: '/login',
 } as const;
 
@@ -23,8 +24,8 @@ export interface NavLink {
  */
 export function viewToggleFor(path: string): NavLink {
   return path === APP_PATHS.calculator
-    ? { label: 'Історія', path: APP_PATHS.history }
-    : { label: 'Калькулятор', path: APP_PATHS.calculator };
+    ? { label: 'History', path: APP_PATHS.history }
+    : { label: 'Calculator', path: APP_PATHS.calculator };
 }
 
 /** The current URL path (without query or fragment), updated after every navigation. Call in an injection context. */

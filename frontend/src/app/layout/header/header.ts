@@ -17,6 +17,7 @@ interface MenuLink extends NavLink {
 const NAV_LINKS: NavLink[] = [
   { label: 'Books', path: APP_PATHS.books },
   { label: 'Authors', path: APP_PATHS.authors },
+  { label: 'Orbits', path: APP_PATHS.orbits },
 ];
 
 /** Burger icon lines; when the menu is open they morph into a cross. */
@@ -31,7 +32,7 @@ const BURGER_LINES = [
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   host: {
-    class: 'block w-full p-4',
+    class: 'relative z-10 block w-full p-4',
     '(document:click)': 'onDocumentClick($event)',
     '(document:keydown.escape)': 'closeAll()',
   },

@@ -13,7 +13,7 @@ interface LoginField {
 
 const FIELDS: LoginField[] = [
   { name: 'email', label: 'Email', type: 'email', autocomplete: 'username' },
-  { name: 'password', label: 'Пароль', type: 'password', autocomplete: 'current-password' },
+  { name: 'password', label: 'Password', type: 'password', autocomplete: 'current-password' },
 ];
 
 @Component({
@@ -41,7 +41,7 @@ export class Login {
       },
       error: (e) => {
         this.loading.set(false);
-        this.error.set(e.error?.error ?? 'Не вдалося увійти');
+        this.error.set(e.error?.error ?? 'Could not sign in');
       },
     });
   }

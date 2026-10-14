@@ -1,0 +1,27 @@
+<canvas
+  #scene
+  class="pointer-events-none fixed inset-0 size-full bg-space"
+  role="img"
+  aria-label="Glowing spheres, one for each open window of this page, joined by a bridge and orbited by particles"
+></canvas>
+
+<section class="relative z-10 flex max-w-xl flex-col items-center gap-2 text-center text-on-space">
+  <h1 class="m-0 font-title text-xl font-normal">Orbits</h1>
+  <p class="m-0 text-sm">
+    Open this page in another browser window and move the windows around: the spheres find each
+    other and pull the particles along.
+  </p>
+  <p class="m-0 text-sm font-semibold" aria-live="polite" data-testid="peer-count">
+    @switch (peerCount()) {
+      @case (0) {
+        No other windows connected yet
+      }
+      @case (1) {
+        1 other window connected
+      }
+      @default {
+        {{ peerCount() }} other windows connected
+      }
+    }
+  </p>
+</section>

@@ -73,7 +73,7 @@ describe('Calculator', () => {
   });
 
   it('flips to the history on /history and back on /', async () => {
-    const calc = () => root.querySelector('section[aria-label="Калькулятор"]')!;
+    const calc = () => root.querySelector('section[aria-label="Calculator"]')!;
     const history = () => root.querySelector('app-history')!;
     expect(calc().hasAttribute('inert')).toBe(false);
     expect(history().hasAttribute('inert')).toBe(true);
@@ -183,7 +183,7 @@ describe('Calculator', () => {
     type('2', '+', '3', 'Enter', 'Enter', '=');
     const requests = http.match('/api/calculate');
     expect(requests.length).toBe(1);
-    expect(root.querySelector('section[aria-label="Калькулятор"]')!.getAttribute('aria-busy')).toBe(
+    expect(root.querySelector('section[aria-label="Calculator"]')!.getAttribute('aria-busy')).toBe(
       'true',
     );
     requests[0].flush({ result: 5 });
@@ -217,7 +217,7 @@ describe('Calculator', () => {
     const router = TestBed.inject(Router);
     const toggle = () =>
       Array.from(root.querySelectorAll<HTMLAnchorElement>('a')).find((a) =>
-        a.textContent!.includes(router.url === '/' ? 'Історія' : 'Калькулятор'),
+        a.textContent!.includes(router.url === '/' ? 'History' : 'Calculator'),
       )!;
 
     expect(toggle().getAttribute('href')).toBe('/history');
@@ -225,7 +225,7 @@ describe('Calculator', () => {
     await harness.fixture.whenStable();
     harness.detectChanges();
     expect(router.url).toBe('/history');
-    expect(root.querySelector('section[aria-label="Калькулятор"]')!.hasAttribute('inert')).toBe(
+    expect(root.querySelector('section[aria-label="Calculator"]')!.hasAttribute('inert')).toBe(
       true,
     );
     http.match('/api/history').forEach((req) => req.flush([]));

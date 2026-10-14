@@ -1,5 +1,5 @@
 <h1 class="m-0 text-center font-title text-[2rem] leading-tight font-normal text-title">
-  <span class="title-accent">Вхід</span>
+  Sign <span class="title-accent">In</span>
 </h1>
 <form
   class="flex w-full max-w-92 flex-col gap-4 rounded-card border border-border bg-surface p-8"
@@ -22,6 +22,6 @@
     <div class="text-sm text-error" role="alert">{{ error() }}</div>
   }
   <button type="submit" class="btn-primary self-start px-6 py-3" [disabled]="loading()">
-    {{ loading() ? 'Вхід...' : 'Увійти' }}
+    {{ loading() ? 'Signing in...' : 'Sign in' }}
   </button>
 </form>

@@ -26,6 +26,12 @@
   --color-outline-hover: #6941c614;
   --color-error: #d92d20;
   --color-focus: #2b73fa;
+  /* Orbits scene: deep space, glowing spheres and the particles they attract. */
+  --color-space: #0b0e1a;
+  --color-on-space: #c9cdf2;
+  --color-orb: #f3edff;
+  --color-orb-glow: #8b5fe8;
+  --color-particle: #9ec5ff;
 
   --font-sans: 'Inter', system-ui, sans-serif;
   /* Krona One has no Cyrillic glyphs; Unbounded is a close match used as their fallback. */

@@ -6,11 +6,11 @@
     History
   </h2>
   @if (loading()) {
-    <p class="m-0 text-sm text-muted" role="status">Завантаження…</p>
+    <p class="m-0 text-sm text-muted" role="status">Loading…</p>
   } @else if (error()) {
     <p class="m-0 text-sm text-error" role="alert">{{ error() }}</p>
   } @else if (items().length === 0) {
-    <p class="m-0 text-sm text-muted">Історія порожня</p>
+    <p class="m-0 text-sm text-muted">History is empty</p>
   } @else {
     <ol class="m-0 flex min-h-0 flex-1 list-none flex-col overflow-y-auto p-0 pr-3">
       @for (item of items(); track item.id) {

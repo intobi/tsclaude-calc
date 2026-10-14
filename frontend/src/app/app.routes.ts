@@ -17,6 +17,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/authors/authors').then((m) => m.Authors),
   },
   {
+    path: 'orbits',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/orbits/orbits').then((m) => m.Orbits),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/calculator/calculator').then((m) => m.Calculator),

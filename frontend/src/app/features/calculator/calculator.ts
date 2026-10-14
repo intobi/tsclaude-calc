@@ -239,7 +239,7 @@ export class Calculator {
       },
       error: (e) => {
         this.clear();
-        this.error.set(e.error?.error ?? 'Помилка сервера');
+        this.error.set(e.error?.error ?? 'Server error');
       },
     });
   }
