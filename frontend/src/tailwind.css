@@ -58,6 +58,18 @@
   @apply inline-flex cursor-pointer items-center gap-2 rounded-control border border-outline bg-transparent leading-tight font-semibold text-outline no-underline focus-ring transition-colors hover:bg-outline-hover;
 }
 
+/*
+ * Dropdown field matching the text inputs: the browser's arrow is replaced by the design's chevron,
+ * and the disabled "Select …" placeholder option is shown muted until a value is chosen.
+ */
+@utility form-select {
+  @apply w-full cursor-pointer appearance-none rounded-control border border-field-border bg-field-bg py-3 pr-12 pl-4 text-base text-title focus-ring transition-colors hover:bg-field-hover has-[option:disabled:checked]:text-muted;
+  background-image: url('/chevron-down.svg');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25rem;
+}
+
 /* Filled primary (call-to-action) button. Size and spacing are set where it is used. */
 @utility btn-primary {
   @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-primary leading-tight font-semibold text-on-primary focus-ring transition-colors not-disabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60;

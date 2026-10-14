@@ -97,7 +97,7 @@
     <label class="flex flex-col gap-2 text-sm text-muted">
       Author
       <select
-        class="cursor-pointer rounded-control border border-field-border bg-field-bg px-4 py-3 text-base text-title focus-ring transition-colors hover:bg-field-hover"
+        class="form-select"
         formControlName="authorId"
         [attr.aria-invalid]="authorId.invalid && authorId.touched"
         aria-describedby="book-author-error"
