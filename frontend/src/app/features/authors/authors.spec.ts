@@ -89,8 +89,8 @@ describe('Authors', () => {
 
   it('lists the authors in a table', () => {
     expect(rows()).toEqual([
-      ['2', 'Jane', 'Austen', 'Female', 'Dec 16, 1775'],
-      ['1', 'Frank', 'Herbert', 'Male', 'Oct 8, 1920'],
+      ['2', 'Jane', 'Austen', 'Female', 'Sat, Dec 16, 1775'],
+      ['1', 'Frank', 'Herbert', 'Male', 'Fri, Oct 8, 1920'],
     ]);
     expect(root.querySelector('abbr[title="Date of birth"]')!.textContent!.trim()).toBe('DOB');
   });
@@ -168,8 +168,8 @@ describe('Authors', () => {
     fixture.detectChanges();
 
     expect(rows()).toEqual([
-      ['2', 'Jane', 'Austen', 'Female', 'Dec 16, 1775'],
-      ['1', 'Brian', 'Herbert', 'Male', 'Oct 8, 1920'],
+      ['2', 'Jane', 'Austen', 'Female', 'Sat, Dec 16, 1775'],
+      ['1', 'Brian', 'Herbert', 'Male', 'Fri, Oct 8, 1920'],
     ]);
   });
 
@@ -183,7 +183,7 @@ describe('Authors', () => {
     http.expectOne({ method: 'DELETE', url: '/api/authors/2' }).flush(null);
     fixture.detectChanges();
 
-    expect(rows()).toEqual([['1', 'Frank', 'Herbert', 'Male', 'Oct 8, 1920']]);
+    expect(rows()).toEqual([['1', 'Frank', 'Herbert', 'Male', 'Fri, Oct 8, 1920']]);
     expect(confirmDialog.open).toBe(false);
   });
 

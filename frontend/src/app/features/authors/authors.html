@@ -42,7 +42,7 @@
               <td class="py-3 pr-4 text-title">{{ genderLabel(author.gender) }}</td>
               <td class="py-3 pr-4 whitespace-nowrap text-title tabular-nums">
                 <time [attr.datetime]="author.dateOfBirth">{{
-                  author.dateOfBirth | date: 'mediumDate'
+                  author.dateOfBirth | date: 'EEE, MMM d, y'
                 }}</time>
               </td>
               <td class="py-3">
