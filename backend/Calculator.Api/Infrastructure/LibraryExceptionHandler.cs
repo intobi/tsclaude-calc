@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace Calculator.Api.Infrastructure;
 
-/// <summary>Turns broken book/author rules into 400 (unknown author) and 409 (author still has books).</summary>
+/// <summary>
+/// Turns broken book/author rules into 400 (unknown author, date of birth in the future)
+/// and 409 (author still has books).
+/// </summary>
 internal sealed class LibraryExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
@@ -14,7 +17,7 @@ internal sealed class LibraryExceptionHandler : IExceptionHandler
     {
         int? statusCode = exception switch
         {
-            UnknownAuthorException => StatusCodes.Status400BadRequest,
+            UnknownAuthorException or InvalidDateOfBirthException => StatusCodes.Status400BadRequest,
             AuthorHasBooksException => StatusCodes.Status409Conflict,
             _ => null,
         };

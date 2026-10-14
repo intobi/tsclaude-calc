@@ -65,8 +65,8 @@ public class DtoMapperTests
         Assert.Equal(("token", "user@example.com", expires), (response.Token, response.Email, response.ExpiresAtUtc));
     }
 
-    private static readonly Author Herbert = new() { Id = 7, FirstName = "Frank", LastName = "Herbert", Gender = EntityGender.Male };
-    private static readonly AuthorResponse HerbertResponse = new(7, "Frank", "Herbert", DtoGender.Male);
+    private static readonly Author Herbert = new() { Id = 7, FirstName = "Frank", LastName = "Herbert", Gender = EntityGender.Male, DateOfBirth = new DateOnly(1920, 10, 8) };
+    private static readonly AuthorResponse HerbertResponse = new(7, "Frank", "Herbert", DtoGender.Male, new DateOnly(1920, 10, 8));
 
     [Fact]
     public void ToEntity_Book_TakesTheNameAndAuthorIdAndLeavesIdUnset()
@@ -90,10 +90,10 @@ public class DtoMapperTests
     [Fact]
     public void ToEntity_Author_TakesEveryFieldAndLeavesIdUnset()
     {
-        var author = _mapper.ToEntity(new AuthorRequest("Jane", "Austen", DtoGender.Female));
+        var author = _mapper.ToEntity(new AuthorRequest("Jane", "Austen", DtoGender.Female, new DateOnly(1775, 12, 16)));
 
-        Assert.Equal((0, "Jane", "Austen", EntityGender.Female),
-            (author.Id, author.FirstName, author.LastName, author.Gender));
+        Assert.Equal((0, "Jane", "Austen", EntityGender.Female, new DateOnly(1775, 12, 16)),
+            (author.Id, author.FirstName, author.LastName, author.Gender, author.DateOfBirth));
     }
 
     [Fact]

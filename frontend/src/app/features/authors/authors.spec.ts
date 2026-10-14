@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Authors } from './authors';
+import { todayIsoDate } from './author.models';
 
 // jsdom may not implement modal dialogs; a minimal stand-in keeps the open/close state.
 if (!HTMLDialogElement.prototype.showModal) {
@@ -18,8 +19,20 @@ describe('Authors', () => {
   let root: HTMLElement;
   let http: HttpTestingController;
 
-  const austen = { id: 2, firstName: 'Jane', lastName: 'Austen', gender: 'Female' };
-  const herbert = { id: 1, firstName: 'Frank', lastName: 'Herbert', gender: 'Male' };
+  const austen = {
+    id: 2,
+    firstName: 'Jane',
+    lastName: 'Austen',
+    gender: 'Female',
+    dateOfBirth: '1775-12-16',
+  };
+  const herbert = {
+    id: 1,
+    firstName: 'Frank',
+    lastName: 'Herbert',
+    gender: 'Male',
+    dateOfBirth: '1920-10-08',
+  };
 
   const button = (name: string) =>
     Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find(
@@ -35,7 +48,7 @@ describe('Authors', () => {
   const rows = () =>
     Array.from(root.querySelectorAll('tbody tr')).map((tr) =>
       Array.from(tr.querySelectorAll('td'))
-        .slice(0, 4)
+        .slice(0, 5)
         .map((td) => td.textContent!.trim()),
     );
   const field = (label: string) =>
@@ -76,9 +89,10 @@ describe('Authors', () => {
 
   it('lists the authors in a table', () => {
     expect(rows()).toEqual([
-      ['2', 'Jane', 'Austen', 'Female'],
-      ['1', 'Frank', 'Herbert', 'Male'],
+      ['2', 'Jane', 'Austen', 'Female', 'Dec 16, 1775'],
+      ['1', 'Frank', 'Herbert', 'Male', 'Oct 8, 1920'],
     ]);
+    expect(root.querySelector('abbr[title="Date of birth"]')!.textContent!.trim()).toBe('DOB');
   });
 
   it('adds an author through the dialog and keeps the list sorted by last name', () => {
@@ -91,17 +105,24 @@ describe('Authors', () => {
     type('First name', ' Leo ');
     type('Last name', ' Tolstoy ');
     chooseGender('Male');
+    type('Date of birth', '1828-09-09');
     submit();
     const req = http.expectOne({ method: 'POST', url: '/api/authors' });
-    expect(req.request.body).toEqual({ firstName: 'Leo', lastName: 'Tolstoy', gender: 'Male' });
-    req.flush({ id: 3, firstName: 'Leo', lastName: 'Tolstoy', gender: 'Male' });
+    const tolstoy = {
+      firstName: 'Leo',
+      lastName: 'Tolstoy',
+      gender: 'Male',
+      dateOfBirth: '1828-09-09',
+    };
+    expect(req.request.body).toEqual(tolstoy);
+    req.flush({ id: 3, ...tolstoy });
     fixture.detectChanges();
 
     expect(authorDialog().open).toBe(false);
     expect(rows().map((r) => r[2])).toEqual(['Austen', 'Herbert', 'Tolstoy']);
   });
 
-  it('requires both names and a gender', () => {
+  it('requires both names, a gender and a date of birth', () => {
     click('+ Add');
     type('First name', '   ');
     submit();
@@ -111,6 +132,20 @@ describe('Authors', () => {
     expect(text).toContain('Enter a first name.');
     expect(text).toContain('Enter a last name.');
     expect(text).toContain('Select a gender.');
+    expect(text).toContain('Enter a date of birth.');
+  });
+
+  it('rejects a date of birth in the future', () => {
+    click('+ Add');
+    expect(field('Date of birth').getAttribute('max')).toBe(todayIsoDate());
+    type('First name', 'Jane');
+    type('Last name', 'Austen');
+    chooseGender('Female');
+    type('Date of birth', '9999-12-31');
+    submit();
+
+    http.expectNone({ method: 'POST', url: '/api/authors' });
+    expect(authorDialog().textContent).toContain('The date of birth cannot be in the future.');
   });
 
   it('edits an author with the current values prefilled', () => {
@@ -118,17 +153,23 @@ describe('Authors', () => {
     expect(field('First name').value).toBe('Frank');
     expect(field('Last name').value).toBe('Herbert');
     expect((field('Gender') as HTMLSelectElement).selectedOptions[0].text.trim()).toBe('Male');
+    expect(field('Date of birth').value).toBe('1920-10-08');
 
     type('First name', 'Brian');
     submit();
     const req = http.expectOne({ method: 'PUT', url: '/api/authors/1' });
-    expect(req.request.body).toEqual({ firstName: 'Brian', lastName: 'Herbert', gender: 'Male' });
+    expect(req.request.body).toEqual({
+      firstName: 'Brian',
+      lastName: 'Herbert',
+      gender: 'Male',
+      dateOfBirth: '1920-10-08',
+    });
     req.flush({ ...herbert, firstName: 'Brian' });
     fixture.detectChanges();
 
     expect(rows()).toEqual([
-      ['2', 'Jane', 'Austen', 'Female'],
-      ['1', 'Brian', 'Herbert', 'Male'],
+      ['2', 'Jane', 'Austen', 'Female', 'Dec 16, 1775'],
+      ['1', 'Brian', 'Herbert', 'Male', 'Oct 8, 1920'],
     ]);
   });
 
@@ -142,7 +183,7 @@ describe('Authors', () => {
     http.expectOne({ method: 'DELETE', url: '/api/authors/2' }).flush(null);
     fixture.detectChanges();
 
-    expect(rows()).toEqual([['1', 'Frank', 'Herbert', 'Male']]);
+    expect(rows()).toEqual([['1', 'Frank', 'Herbert', 'Male', 'Oct 8, 1920']]);
     expect(confirmDialog.open).toBe(false);
   });
 

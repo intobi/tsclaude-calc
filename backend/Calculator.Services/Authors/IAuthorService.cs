@@ -11,10 +11,12 @@ public interface IAuthorService
     Task<Author?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>Saves a new author and returns it with its generated id.</summary>
+    /// <exception cref="Exceptions.InvalidDateOfBirthException">The date of birth is in the future.</exception>
     Task<Author> CreateAsync(Author author, CancellationToken cancellationToken = default);
 
     /// <summary>Copies the editable fields of <paramref name="changes"/> onto the author with <paramref name="id"/>.</summary>
     /// <returns>The updated author, or <c>null</c> when it does not exist.</returns>
+    /// <exception cref="Exceptions.InvalidDateOfBirthException">The date of birth is in the future.</exception>
     Task<Author?> UpdateAsync(int id, Author changes, CancellationToken cancellationToken = default);
 
     /// <returns><c>false</c> when the author does not exist.</returns>

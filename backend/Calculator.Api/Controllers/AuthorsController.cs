@@ -25,6 +25,7 @@ public class AuthorsController(IAuthorService authorService, IDtoMapper mapper) 
         return author is null ? NotFound() : Ok(mapper.ToAuthorResponse(author));
     }
 
+    /// <remarks>A date of birth in the future gets 400 from <see cref="Infrastructure.LibraryExceptionHandler"/>.</remarks>
     [HttpPost]
     public async Task<ActionResult<AuthorResponse>> Create(AuthorRequest request, CancellationToken cancellationToken)
     {
@@ -32,6 +33,7 @@ public class AuthorsController(IAuthorService authorService, IDtoMapper mapper) 
         return CreatedAtAction(nameof(GetById), new { id = author.Id }, mapper.ToAuthorResponse(author));
     }
 
+    /// <remarks>A date of birth in the future gets 400 from <see cref="Infrastructure.LibraryExceptionHandler"/>.</remarks>
     [HttpPut("{id:int}")]
     public async Task<ActionResult<AuthorResponse>> Update(
         int id,

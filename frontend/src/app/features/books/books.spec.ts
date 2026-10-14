@@ -29,8 +29,20 @@ describe('Books', () => {
   };
   const dialog = (titleId: string) =>
     root.querySelector<HTMLDialogElement>(`dialog[aria-labelledby="${titleId}"]`)!;
-  const herbert = { id: 1, firstName: 'Frank', lastName: 'Herbert', gender: 'Male' };
-  const austen = { id: 2, firstName: 'Jane', lastName: 'Austen', gender: 'Female' };
+  const herbert = {
+    id: 1,
+    firstName: 'Frank',
+    lastName: 'Herbert',
+    gender: 'Male',
+    dateOfBirth: '1920-10-08',
+  };
+  const austen = {
+    id: 2,
+    firstName: 'Jane',
+    lastName: 'Austen',
+    gender: 'Female',
+    dateOfBirth: '1775-12-16',
+  };
 
   const rows = () =>
     Array.from(root.querySelectorAll('tbody tr')).map((tr) =>

@@ -14,12 +14,16 @@ export interface Author {
   firstName: string;
   lastName: string;
   gender: Gender;
+  /** ISO date, e.g. "1775-12-16". */
+  dateOfBirth: string;
 }
 
-export interface AuthorRequest {
-  firstName: string;
-  lastName: string;
-  gender: Gender;
+export type AuthorRequest = Omit<Author, 'id'>;
+
+/** Today's local date as an ISO date ("yyyy-MM-dd"), the format of `<input type="date">`. */
+export function todayIsoDate(now = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 export const authorFullName = (author: Pick<Author, 'firstName' | 'lastName'>) =>

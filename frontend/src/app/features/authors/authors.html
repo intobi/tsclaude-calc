@@ -27,6 +27,9 @@
             <th scope="col" class="py-3 pr-4 font-medium">First name</th>
             <th scope="col" class="py-3 pr-4 font-medium">Last name</th>
             <th scope="col" class="py-3 pr-4 font-medium">Gender</th>
+            <th scope="col" class="py-3 pr-4 font-medium">
+              <abbr class="no-underline" title="Date of birth">DOB</abbr>
+            </th>
             <th scope="col" class="py-3 text-right font-medium">Actions</th>
           </tr>
         </thead>
@@ -37,6 +40,11 @@
               <td class="py-3 pr-4 wrap-anywhere text-title">{{ author.firstName }}</td>
               <td class="py-3 pr-4 wrap-anywhere text-title">{{ author.lastName }}</td>
               <td class="py-3 pr-4 text-title">{{ genderLabel(author.gender) }}</td>
+              <td class="py-3 pr-4 whitespace-nowrap text-title tabular-nums">
+                <time [attr.datetime]="author.dateOfBirth">{{
+                  author.dateOfBirth | date: 'mediumDate'
+                }}</time>
+              </td>
               <td class="py-3">
                 <div class="flex justify-end gap-2">
                   <button
@@ -143,6 +151,27 @@
       <div id="author-gender-error" class="min-h-5 text-sm text-error" role="alert">
         @if (gender.touched && gender.hasError('required')) {
           Select a gender.
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="flex flex-col gap-2 text-sm text-muted">
+        Date of birth
+        <input
+          type="date"
+          class="rounded-control border border-field-border bg-field-bg px-4 py-3 text-base text-title focus-ring transition-colors hover:bg-field-hover"
+          [max]="today"
+          formControlName="dateOfBirth"
+          [attr.aria-invalid]="dateOfBirth.invalid && dateOfBirth.touched"
+          aria-describedby="author-dob-error"
+        />
+      </label>
+      <div id="author-dob-error" class="min-h-5 text-sm text-error" role="alert">
+        @if (dateOfBirth.touched && dateOfBirth.hasError('required')) {
+          Enter a date of birth.
+        } @else if (dateOfBirth.hasError('future')) {
+          The date of birth cannot be in the future.
         } @else if (dialogError()) {
           {{ dialogError() }}
         }

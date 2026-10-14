@@ -4,7 +4,7 @@ using Calculator.Services.Exceptions;
 
 namespace Calculator.Services.Authors;
 
-internal class AuthorService(IAuthorRepository authorRepository) : IAuthorService
+internal class AuthorService(IAuthorRepository authorRepository, TimeProvider timeProvider) : IAuthorService
 {
     public Task<IReadOnlyList<Author>> GetAllAsync(CancellationToken cancellationToken = default) =>
         authorRepository.GetAllAsync(cancellationToken);
@@ -18,6 +18,7 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
 
         author.Id = 0;
         CopyEditableFields(author, author);
+        EnsureBornInThePast(author.DateOfBirth);
         await authorRepository.AddAsync(author, cancellationToken);
         return author;
     }
@@ -25,6 +26,7 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
     public async Task<Author?> UpdateAsync(int id, Author changes, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(changes);
+        EnsureBornInThePast(changes.DateOfBirth);
 
         var author = await authorRepository.GetByIdAsync(id, cancellationToken);
         if (author is null)
@@ -64,6 +66,16 @@ internal class AuthorService(IAuthorRepository authorRepository) : IAuthorServic
         target.FirstName = NormalizeName(source.FirstName);
         target.LastName = NormalizeName(source.LastName);
         target.Gender = source.Gender;
+        target.DateOfBirth = source.DateOfBirth;
+    }
+
+    private void EnsureBornInThePast(DateOnly dateOfBirth)
+    {
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        if (dateOfBirth > today)
+        {
+            throw new InvalidDateOfBirthException(dateOfBirth);
+        }
     }
 
     private static string NormalizeName(string name)

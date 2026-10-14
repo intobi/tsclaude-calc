@@ -9,4 +9,7 @@ public class Author
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
     public Gender Gender { get; set; }
+
+    /// <summary>Date of birth; required and never in the future.</summary>
+    public DateOnly DateOfBirth { get; set; }
 }

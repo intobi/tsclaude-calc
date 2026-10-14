@@ -34,7 +34,7 @@ public sealed class BooksApiTests : IDisposable
     }
 
     private async Task<AuthorResponse> CreateAuthorAsync(string firstName = "Frank", string lastName = "Herbert") =>
-        (await (await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(firstName, lastName, Gender.Male)))
+        (await (await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(firstName, lastName, Gender.Male, new DateOnly(1920, 10, 8))))
             .Content.ReadFromJsonAsync<AuthorResponse>())!;
 
     [Fact]

@@ -33,8 +33,11 @@ public sealed class AuthorsApiTests : IDisposable
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login!.Token);
     }
 
+    private static readonly DateOnly HerbertBorn = new DateOnly(1920, 10, 8);
+    private static readonly DateOnly AustenBorn = new DateOnly(1775, 12, 16);
+
     private async Task<AuthorResponse> CreateAsync(string firstName, string lastName, Gender gender = Gender.Male) =>
-        (await (await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(firstName, lastName, gender)))
+        (await (await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(firstName, lastName, gender, HerbertBorn)))
             .Content.ReadFromJsonAsync<AuthorResponse>())!;
 
     [Fact]
@@ -48,31 +51,34 @@ public sealed class AuthorsApiTests : IDisposable
     {
         await SignInAsync();
 
-        var created = await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(" Frank ", " Herbert ", Gender.Male));
+        var created = await _client.PostAsJsonAsync("/api/authors", new AuthorRequest(" Frank ", " Herbert ", Gender.Male, HerbertBorn));
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var author = (await created.Content.ReadFromJsonAsync<AuthorResponse>())!;
-        Assert.Equal(("Frank", "Herbert", Gender.Male), (author.FirstName, author.LastName, author.Gender));
+        Assert.Equal(("Frank", "Herbert", Gender.Male, HerbertBorn), (author.FirstName, author.LastName, author.Gender, author.DateOfBirth));
         Assert.Equal($"/api/authors/{author.Id}", created.Headers.Location!.AbsolutePath);
 
         Assert.Equal([author], await _client.GetFromJsonAsync<List<AuthorResponse>>("/api/authors"));
 
-        var updated = await _client.PutAsJsonAsync($"/api/authors/{author.Id}", new AuthorRequest("Jane", "Austen", Gender.Female));
+        var updated = await _client.PutAsJsonAsync($"/api/authors/{author.Id}", new AuthorRequest("Jane", "Austen", Gender.Female, AustenBorn));
         Assert.Equal(HttpStatusCode.OK, updated.StatusCode);
-        Assert.Equal(new AuthorResponse(author.Id, "Jane", "Austen", Gender.Female), await updated.Content.ReadFromJsonAsync<AuthorResponse>());
+        Assert.Equal(new AuthorResponse(author.Id, "Jane", "Austen", Gender.Female, AustenBorn), await updated.Content.ReadFromJsonAsync<AuthorResponse>());
 
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/authors/{author.Id}")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/authors/{author.Id}")).StatusCode);
     }
 
     [Fact]
-    public async Task Gender_IsSentAsText()
+    public async Task GenderAndDateOfBirth_AreSentAsText()
     {
         await SignInAsync();
 
-        var response = await _client.PostAsJsonAsync("/api/authors", new { firstName = "Jane", lastName = "Austen", gender = "Female" });
+        var response = await _client.PostAsJsonAsync(
+            "/api/authors", new { firstName = "Jane", lastName = "Austen", gender = "Female", dateOfBirth = "1775-12-16" });
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Contains("\"gender\":\"Female\"", await response.Content.ReadAsStringAsync());
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("\"gender\":\"Female\"", json);
+        Assert.Contains("\"dateOfBirth\":\"1775-12-16\"", json);
     }
 
     [Fact]
@@ -89,12 +95,15 @@ public sealed class AuthorsApiTests : IDisposable
 
     public static TheoryData<object> InvalidRequests => new()
     {
-        new { firstName = "", lastName = "Austen", gender = "Female" },
-        new { firstName = "Jane", lastName = "   ", gender = "Female" },
-        new { firstName = new string('x', AuthorRequest.NameMaxLength + 1), lastName = "Austen", gender = "Female" },
-        new { firstName = "Jane", lastName = "Austen" },
-        new { firstName = "Jane", lastName = "Austen", gender = "Unknown" },
-        new { firstName = "Jane", lastName = "Austen", gender = 42 },
+        new { firstName = "", lastName = "Austen", gender = "Female", dateOfBirth = "1775-12-16" },
+        new { firstName = "Jane", lastName = "   ", gender = "Female", dateOfBirth = "1775-12-16" },
+        new { firstName = new string('x', AuthorRequest.NameMaxLength + 1), lastName = "Austen", gender = "Female", dateOfBirth = "1775-12-16" },
+        new { firstName = "Jane", lastName = "Austen", dateOfBirth = "1775-12-16" },
+        new { firstName = "Jane", lastName = "Austen", gender = "Unknown", dateOfBirth = "1775-12-16" },
+        new { firstName = "Jane", lastName = "Austen", gender = 42, dateOfBirth = "1775-12-16" },
+        new { firstName = "Jane", lastName = "Austen", gender = "Female" },
+        new { firstName = "Jane", lastName = "Austen", gender = "Female", dateOfBirth = "16.12.1775" },
+        new { firstName = "Jane", lastName = "Austen", gender = "Female", dateOfBirth = "9999-12-31" },
     };
 
     [Theory]
@@ -127,7 +136,7 @@ public sealed class AuthorsApiTests : IDisposable
     {
         await SignInAsync();
 
-        Assert.Equal(HttpStatusCode.NotFound, (await _client.PutAsJsonAsync("/api/authors/999", new AuthorRequest("X", "Y", Gender.Male))).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.PutAsJsonAsync("/api/authors/999", new AuthorRequest("X", "Y", Gender.Male, HerbertBorn))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.DeleteAsync("/api/authors/999")).StatusCode);
     }
 }

@@ -1,6 +1,14 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { notBlank } from '../../core/forms/not-blank.validator';
 import { apiErrorMessage } from '../../core/http/api-error';
 import {
@@ -10,6 +18,7 @@ import {
   Gender,
   authorFullName,
   compareAuthors,
+  todayIsoDate,
 } from './author.models';
 import { AuthorsApi } from './authors-api';
 
@@ -19,9 +28,13 @@ const nameControl = () =>
     validators: [Validators.required, Validators.maxLength(AUTHOR_NAME_MAX_LENGTH), notBlank],
   });
 
+/** Rejects dates after today (ISO strings compare in date order). */
+const notInFuture = (control: AbstractControl<string>): ValidationErrors | null =>
+  control.value && control.value > todayIsoDate() ? { future: true } : null;
+
 @Component({
   selector: 'app-authors',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DatePipe],
   templateUrl: './authors.html',
   host: { class: 'flex w-full flex-col items-center gap-6' },
 })
@@ -34,6 +47,8 @@ export class Authors {
 
   protected readonly nameMaxLength = AUTHOR_NAME_MAX_LENGTH;
   protected readonly genders = GENDERS;
+  /** Latest selectable date of birth. */
+  protected readonly today = todayIsoDate();
   protected readonly fullName = authorFullName;
   protected readonly authors = signal<Author[]>([]);
   protected readonly loading = signal(true);
@@ -51,10 +66,15 @@ export class Authors {
       nonNullable: true,
       validators: Validators.required,
     }),
+    dateOfBirth: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, notInFuture],
+    }),
   });
   protected readonly firstName = this.form.controls.firstName;
   protected readonly lastName = this.form.controls.lastName;
   protected readonly gender = this.form.controls.gender;
+  protected readonly dateOfBirth = this.form.controls.dateOfBirth;
 
   constructor() {
     this.authorsApi.getAll().subscribe({
@@ -92,6 +112,7 @@ export class Authors {
       firstName: this.firstName.value.trim(),
       lastName: this.lastName.value.trim(),
       gender,
+      dateOfBirth: this.dateOfBirth.value,
     };
     const save$ = editing
       ? this.authorsApi.update(editing.id, request)
@@ -151,6 +172,7 @@ export class Authors {
       firstName: author?.firstName ?? '',
       lastName: author?.lastName ?? '',
       gender: author?.gender ?? '',
+      dateOfBirth: author?.dateOfBirth ?? '',
     });
     this.authorDialog().nativeElement.showModal();
     // When editing, typing replaces the current name instead of appending to it.

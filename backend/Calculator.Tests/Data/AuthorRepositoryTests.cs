@@ -27,7 +27,7 @@ public sealed class AuthorRepositoryTests : IDisposable
     }
 
     private static Author Author(string firstName, string lastName, Gender gender = Gender.Male) =>
-        new() { FirstName = firstName, LastName = lastName, Gender = gender };
+        new() { FirstName = firstName, LastName = lastName, Gender = gender, DateOfBirth = new DateOnly(1920, 10, 8) };
 
     [Fact]
     public async Task AddUpdateAndDelete_RoundTripThroughTheDatabase()
@@ -40,9 +40,11 @@ public sealed class AuthorRepositoryTests : IDisposable
         loaded!.FirstName = "Jane";
         loaded.LastName = "Austen";
         loaded.Gender = Gender.Female;
+        loaded.DateOfBirth = new DateOnly(1775, 12, 16);
         await _repository.UpdateAsync(loaded);
         var saved = await _db.Authors.AsNoTracking().SingleAsync();
-        Assert.Equal(("Jane", "Austen", Gender.Female), (saved.FirstName, saved.LastName, saved.Gender));
+        Assert.Equal(("Jane", "Austen", Gender.Female, new DateOnly(1775, 12, 16)),
+            (saved.FirstName, saved.LastName, saved.Gender, saved.DateOfBirth));
 
         await _repository.DeleteAsync(loaded);
         Assert.Empty(await _repository.GetAllAsync());
