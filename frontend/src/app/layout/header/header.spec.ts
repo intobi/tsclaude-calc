@@ -23,7 +23,11 @@ describe('Header', () => {
   async function render() {
     await TestBed.configureTestingModule({
       imports: [Header],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: '**', children: [] }]),
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(Header);
     fixture.detectChanges();
@@ -45,17 +49,32 @@ describe('Header', () => {
       await render();
     });
 
-    it('links to the calculator, the history, the books and the authors', () => {
-      const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('nav a')).map((a) => [
-        a.textContent!.trim(),
+    const links = () =>
+      Array.from(root.querySelectorAll<HTMLAnchorElement>('nav a')).map((a) => [
+        a.textContent!.replace(/\s+/g, ' ').trim(),
         a.getAttribute('href'),
       ]);
-      expect(links).toEqual([
-        ['Калькулятор', '/'],
-        ['Історія', '/history'],
+
+    it('has one calculator/history switch, then the books and the authors', () => {
+      expect(links()).toEqual([
+        ['⇄ Історія', '/history'],
         ['Books', '/books'],
         ['Authors', '/authors'],
       ]);
+    });
+
+    it('switches the toggle to the calculator on the history and on other pages', async () => {
+      const router = TestBed.inject(Router);
+
+      for (const url of ['/history', '/books']) {
+        await router.navigateByUrl(url);
+        detectChanges();
+        expect(links()[0]).toEqual(['⇄ Калькулятор', '/']);
+      }
+
+      await router.navigateByUrl('/');
+      detectChanges();
+      expect(links()[0]).toEqual(['⇄ Історія', '/history']);
     });
 
     it('opens the keyboard shortcuts cheat sheet and closes it with Escape', () => {

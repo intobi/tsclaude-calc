@@ -16,7 +16,7 @@
         [attr.data-open]="mobileOpen()"
       >
         <ul class="m-0 list-none p-0 nav:flex nav:items-center nav:gap-6">
-          @for (link of links; track link.path) {
+          @for (link of links(); track $index) {
             <li>
               <a
                 class="inline-flex items-center py-3 leading-tight font-semibold whitespace-nowrap text-title no-underline focus-ring transition-colors hover:text-outline aria-[current=page]:text-outline max-nav:w-full"
@@ -25,6 +25,9 @@
                 [routerLinkActiveOptions]="{ exact: true }"
                 ariaCurrentWhenActive="page"
               >
+                @if (link.toggle) {
+                  <span class="mr-2" aria-hidden="true">⇄</span>
+                }
                 {{ link.label }}
               </a>
             </li>

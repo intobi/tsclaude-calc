@@ -3,19 +3,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
-import { APP_PATHS } from '../../core/navigation';
+import { APP_PATHS, NavLink, injectCurrentPath, viewToggleFor } from '../../core/navigation';
 import { KEYBOARD_SHORTCUTS } from '../../features/calculator/keyboard-shortcuts';
-
-interface NavLink {
-  label: string;
-  path: string;
-}
 
 type MenuId = 'shortcuts' | 'account';
 
+interface MenuLink extends NavLink {
+  /** The calculator/history switch; shown with a ⇄ icon. */
+  toggle?: boolean;
+}
+
+/** Pages that always appear in the menu, after the calculator/history switch. */
 const NAV_LINKS: NavLink[] = [
-  { label: 'Калькулятор', path: APP_PATHS.calculator },
-  { label: 'Історія', path: APP_PATHS.history },
   { label: 'Books', path: APP_PATHS.books },
   { label: 'Authors', path: APP_PATHS.authors },
 ];
@@ -42,8 +41,17 @@ export class Header {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  private readonly currentPath = injectCurrentPath();
+
   protected readonly paths = APP_PATHS;
-  protected readonly links = NAV_LINKS;
+  /**
+   * Menu items: first one switch between the calculator and the history
+   * (same as the switch above the card), then the other pages.
+   */
+  protected readonly links = computed<MenuLink[]>(() => [
+    { ...viewToggleFor(this.currentPath()), toggle: true },
+    ...NAV_LINKS,
+  ]);
   protected readonly shortcuts = KEYBOARD_SHORTCUTS;
   protected readonly burgerLines = BURGER_LINES;
   protected readonly email = this.authService.email;

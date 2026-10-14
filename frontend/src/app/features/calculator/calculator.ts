@@ -7,15 +7,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { Subscription, filter, map } from 'rxjs';
+import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import {
   OPERATION_SYMBOLS as SYMBOLS,
   Operation,
   formatNumber,
 } from '../../core/calculator/operations';
-import { APP_PATHS } from '../../core/navigation';
+import { APP_PATHS, injectCurrentPath, viewToggleFor } from '../../core/navigation';
 import { History } from '../history/history';
 import { CalculatorApi } from './calculator-api';
 
@@ -114,30 +113,16 @@ const isEditable = (target: EventTarget | null): boolean =>
 })
 export class Calculator {
   private readonly calculatorApi = inject(CalculatorApi);
-  private readonly router = inject(Router);
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      map(() => this.router.url),
-      takeUntilDestroyed(),
-    ),
-    { initialValue: this.router.url },
-  );
+  private readonly path = injectCurrentPath();
 
   protected readonly display = signal('0');
   protected readonly expression = signal('');
   protected readonly error = signal('');
   protected readonly keys = KEYS;
   /** The history side is shown on the /history URL (selected from the header menu). */
-  protected readonly historyOpen = computed(
-    () => this.url().split(/[?#]/)[0] === APP_PATHS.history,
-  );
+  protected readonly historyOpen = computed(() => this.path() === APP_PATHS.history);
   /** Target of the switch above the card: the side that is currently hidden. */
-  protected readonly viewToggle = computed(() =>
-    this.historyOpen()
-      ? { label: 'Калькулятор', path: APP_PATHS.calculator }
-      : { label: 'Історія', path: APP_PATHS.history },
-  );
+  protected readonly viewToggle = computed(() => viewToggleFor(this.path()));
   /** A calculation request is in flight; further input waits for it (Clear cancels it). */
   protected readonly busy = signal(false);
   protected readonly pressedKey = signal<Key | null>(null);
