@@ -10,3 +10,6 @@ artifacts/
 *.db
 *.db-shm
 *.db-wal
+
+# Supergoal run artifacts (plans, state, copied scripts)
+.supergoal/
