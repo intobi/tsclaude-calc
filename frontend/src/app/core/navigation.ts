@@ -11,6 +11,8 @@ export const APP_PATHS = {
   authors: '/authors',
   orbits: '/orbits',
   login: '/login',
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
 } as const;
 
 export interface NavLink {

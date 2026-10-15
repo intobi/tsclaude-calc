@@ -1,4 +1,5 @@
 using Calculator.Api.Mapping;
+using Calculator.Contracts.Auth;
 using Calculator.Contracts.Authors;
 using Calculator.Contracts.Books;
 using Calculator.Contracts.Calculations;
@@ -63,6 +64,17 @@ public class DtoMapperTests
         var response = _mapper.ToLoginResponse(new AuthResult("token", "user@example.com", expires));
 
         Assert.Equal(("token", "user@example.com", expires), (response.Token, response.Email, response.ExpiresAtUtc));
+    }
+
+    [Fact]
+    public void ToForgotPasswordResponse_CopiesTheTokenAndExpiry()
+    {
+        var expires = new DateTime(2026, 10, 15, 9, 30, 0, DateTimeKind.Utc);
+
+        Assert.Equal(new ForgotPasswordResponse("token", expires),
+            _mapper.ToForgotPasswordResponse(new PasswordResetTicket("token", expires)));
+        Assert.Equal(new ForgotPasswordResponse(null, null),
+            _mapper.ToForgotPasswordResponse(PasswordResetTicket.NoAccount));
     }
 
     private static readonly Author Herbert = new() { Id = 7, FirstName = "Frank", LastName = "Herbert", Gender = EntityGender.Male, DateOfBirth = new DateOnly(1920, 10, 8) };

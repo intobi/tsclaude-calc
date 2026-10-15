@@ -10,7 +10,7 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddDtoMapping()
     .AddApiErrorHandling()
-    .AddLoginRateLimiting()
+    .AddAuthRateLimiting()
     .AddFrontendCors()
     .AddOpenApi()
     .AddControllers();

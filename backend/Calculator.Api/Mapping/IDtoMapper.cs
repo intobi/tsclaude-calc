@@ -22,6 +22,8 @@ public interface IDtoMapper
 
     LoginResponse ToLoginResponse(AuthResult result);
 
+    ForgotPasswordResponse ToForgotPasswordResponse(PasswordResetTicket ticket);
+
     /// <summary>A book entered in the dialog (the id comes from the URL or the database).</summary>
     Book ToEntity(BookRequest request);
 

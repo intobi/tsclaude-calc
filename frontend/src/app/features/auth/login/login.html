@@ -5,6 +5,11 @@
   class="flex w-full max-w-92 flex-col gap-4 rounded-card border border-border bg-surface p-8"
   (ngSubmit)="submit()"
 >
+  @if (passwordChanged()) {
+    <div class="text-sm text-success" role="status">
+      Your password has been changed. Sign in with the new password.
+    </div>
+  }
   @for (field of fields; track field.name) {
     <label class="flex flex-col gap-2 text-sm text-muted">
       {{ field.label }}
@@ -21,7 +26,15 @@
   @if (error()) {
     <div class="text-sm text-error" role="alert">{{ error() }}</div>
   }
-  <button type="submit" class="btn-primary self-start px-6 py-3" [disabled]="loading()">
-    {{ loading() ? 'Signing in...' : 'Sign in' }}
-  </button>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <button type="submit" class="btn-primary px-6 py-3" [disabled]="loading()">
+      {{ loading() ? 'Signing in...' : 'Sign in' }}
+    </button>
+    <a
+      class="rounded-control text-sm font-semibold text-outline no-underline focus-ring hover:underline"
+      [routerLink]="forgotPasswordPath"
+      [queryParams]="{ email: credentials.email || null }"
+      >Forgot password?</a
+    >
+  </div>
 </form>

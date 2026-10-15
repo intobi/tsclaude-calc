@@ -1,5 +1,6 @@
 using Calculator.Data.Entities;
 using Calculator.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,8 +8,12 @@ namespace Calculator.Data;
 
 public static class DependencyInjection
 {
+    /// <summary>How long a password reset link stays valid.</summary>
+    public static readonly TimeSpan PasswordResetTokenLifespan = TimeSpan.FromMinutes(30);
+
     /// <summary>
-    /// Registers the EF Core context, the ASP.NET Core Identity user store and the repositories.
+    /// Registers the EF Core context, the ASP.NET Core Identity user store (with its token providers
+    /// for password reset links) and the repositories.
     /// </summary>
     public static IServiceCollection AddDataLayer(this IServiceCollection services, string connectionString)
     {
@@ -26,7 +31,14 @@ public static class DependencyInjection
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 4;
             })
-            .AddEntityFrameworkStores<AppDbContext>();
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+        // Reset tokens are signed with ASP.NET Core data protection and embed the user's security stamp,
+        // so a token stops working once it expires or the password changes (it is single use).
+        services.AddDataProtection();
+        services.Configure<DataProtectionTokenProviderOptions>(
+            options => options.TokenLifespan = PasswordResetTokenLifespan);
 
         services.AddScoped<IUserCalcLogRepository, UserCalcLogRepository>();
         services.AddScoped<IUserRepository, UserRepository>();

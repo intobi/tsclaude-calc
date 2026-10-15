@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IPasswordResetService, PasswordResetService>();
         services.AddScoped<ICalculatorService, CalculatorService>();
         services.AddScoped<IHistoryService, HistoryService>();
         services.AddScoped<IBookService, BookService>();

@@ -29,6 +29,8 @@ public partial class DtoMapper : IDtoMapper
 
     public partial LoginResponse ToLoginResponse(AuthResult result);
 
+    public partial ForgotPasswordResponse ToForgotPasswordResponse(PasswordResetTicket ticket);
+
     [MapperIgnoreTarget(nameof(Book.Id))]
     [MapperIgnoreTarget(nameof(Book.UpdatedAtUtc))]
     [MapperIgnoreTarget(nameof(Book.Author))]

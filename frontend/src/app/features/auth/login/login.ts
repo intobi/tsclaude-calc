@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LoginRequest } from '../../../core/auth/auth.models';
+import { APP_PATHS } from '../../../core/navigation';
+import { PASSWORD_CHANGED_PARAM } from '../password-reset/password-reset.models';
 
 interface LoginField {
   name: keyof LoginRequest;
@@ -18,7 +20,7 @@ const FIELDS: LoginField[] = [
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './login.html',
   host: { class: 'flex w-full flex-col items-center gap-6' },
 })
@@ -26,13 +28,23 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
+
   protected readonly fields = FIELDS;
-  protected readonly credentials: LoginRequest = { email: '', password: '' };
+  protected readonly forgotPasswordPath = APP_PATHS.forgotPassword;
+  /** Prefilled when coming back from the password reset pages. */
+  protected readonly credentials: LoginRequest = {
+    email: this.query.get('email') ?? '',
+    password: '',
+  };
+  /** Shown after a password reset, until the next sign-in attempt. */
+  protected readonly passwordChanged = signal(this.query.has(PASSWORD_CHANGED_PARAM));
   protected readonly error = signal('');
   protected readonly loading = signal(false);
 
   protected submit() {
     this.error.set('');
+    this.passwordChanged.set(false);
     this.loading.set(true);
     this.authService.login({ ...this.credentials }).subscribe({
       next: () => {

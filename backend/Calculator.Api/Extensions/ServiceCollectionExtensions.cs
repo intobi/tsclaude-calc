@@ -13,9 +13,16 @@ public static class ServiceCollectionExtensions
 {
     public const string FrontendCorsPolicy = "FrontendDev";
     public const string LoginRateLimitPolicy = "login";
+    public const string PasswordResetRateLimitPolicy = "password-reset";
 
     /// <summary>Login attempts allowed per client IP address per minute (brute-force protection).</summary>
     private const int LoginAttemptsPerMinute = 10;
+
+    /// <summary>
+    /// Password reset calls (requesting, checking or using a link) allowed per client IP address per minute;
+    /// limits token guessing and link spamming.
+    /// </summary>
+    private const int PasswordResetAttemptsPerMinute = 5;
 
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
@@ -58,25 +65,32 @@ public static class ServiceCollectionExtensions
         services
             .AddExceptionHandler<CalculationExceptionHandler>()
             .AddExceptionHandler<LibraryExceptionHandler>()
+            .AddExceptionHandler<PasswordResetExceptionHandler>()
             .AddProblemDetails();
 
-    public static IServiceCollection AddLoginRateLimiting(this IServiceCollection services) =>
+    /// <summary>Per-IP limits for the anonymous auth endpoints (login and password reset).</summary>
+    public static IServiceCollection AddAuthRateLimiting(this IServiceCollection services) =>
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             options.OnRejected = (context, cancellationToken) =>
                 new ValueTask(context.HttpContext.Response.WriteAsJsonAsync(
-                    new ErrorResponse("Too many login attempts. Try again in a minute."),
+                    new ErrorResponse("Too many attempts. Try again in a minute."),
                     cancellationToken));
 
-            options.AddPolicy(LoginRateLimitPolicy, httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(
-                    httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                    _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = LoginAttemptsPerMinute,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0,
-                    }));
+            options.AddPolicy(LoginRateLimitPolicy, httpContext => PerIpPerMinute(httpContext, LoginAttemptsPerMinute));
+            options.AddPolicy(
+                PasswordResetRateLimitPolicy,
+                httpContext => PerIpPerMinute(httpContext, PasswordResetAttemptsPerMinute));
         });
+
+    private static RateLimitPartition<string> PerIpPerMinute(HttpContext httpContext, int permitLimit) =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = permitLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            });
 }

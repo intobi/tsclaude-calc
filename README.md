@@ -10,6 +10,11 @@ cd frontend && npm install && npm start     # http://localhost:4200 (proxies /ap
 
 Seeded dev accounts: `andrew.t@intobi.com` and `arty.l@intobi.com`, password `1111`.
 
+### Forgot password
+"Forgot password?" on the sign-in page issues a single-use reset link (ASP.NET Core Identity token, valid 30 minutes).
+Email delivery is simulated: the API returns the token and the page shows the link to copy or open, instead of emailing it.
+The reset page checks the link first, then sets the new password (it must differ from the current one) and sends you back to sign in.
+
 ## Test
 ```
 dotnet test backend/Calculator.slnx
@@ -29,7 +34,7 @@ dotnet dotnet-ef migrations add <Name> --project Calculator.Data --startup-proje
 |---|---|
 | `Calculator.Contracts` | Request/response DTOs exchanged with the frontend. No logic, no dependencies |
 | `Calculator.Api` | Controllers, the DTO ⇄ entity mapper (`Mapping/DtoMapper`, Mapperly), auth/CORS/rate limiting; `Program.cs` is the composition root |
-| `Calculator.Services` | Business logic and its interfaces: calculations, history, login/JWT |
+| `Calculator.Services` | Business logic and its interfaces: calculations, history, login/JWT, password reset |
 | `Calculator.Data` | EF Core entities, `AppDbContext`, migrations, repositories and their interfaces |
 | `Calculator.Tests` | Unit, mapper, API integration and architecture tests |
 
